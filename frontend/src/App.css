@@ -10,14 +10,17 @@ header {
   flex-direction: row;
   justify-content: space-between;
 }
+
 .nav-main {
   display: flex;
   flex-direction: row;
   align-items: center;
 }
+
 .nav-main .nav-links {
   height: 100%;
 }
+
 .nav-main .nav-logo {
   font-size: 3.2em;
   line-height: 1.1;
@@ -31,12 +34,14 @@ header {
   cursor: pointer;
   text-decoration: none;
 }
+
 .nav-links {
   display: flex;
   flex-direction: row;
   align-items: center;
   padding: 0;
 }
+
 .nav-links .nav-a {
   padding: 0 1rem;
   font-size: 1.2rem;
@@ -49,16 +54,20 @@ header {
   display: flex;
   align-items: center;
 }
+
 #nav-button-dashboard {
   padding-left: 1rem;
   padding-right: 1rem;
   background-color: var(--color4);
   color: var(--color3);
 }
-.nav-links .nav-a:hover, #nav-button-dashboard:hover {
+
+.nav-links .nav-a:hover,
+#nav-button-dashboard:hover {
   background-color: var(--color2);
   color: var(--color4);
 }
+
 .nav-search {
   display: flex;
   flex-direction: row;
@@ -68,10 +77,12 @@ header {
   height: 100%;
   cursor: text;
 }
+
 .nav-search:hover {
   background-color: var(--color2);
   color: var(--color4);
 }
+
 .nav-search input {
   background-color: transparent;
   padding: 0.4rem 0.2rem;
@@ -79,9 +90,11 @@ header {
   border: none;
   font-size: 1rem;
 }
+
 .nav-search input:focus {
   outline: none;
 }
+
 .nav-search:hover input {
   color: var(--color4);
 }
@@ -93,12 +106,15 @@ header {
   margin: 0 auto;
 }
 
-.button-primary, .button-secondary {
+.button-primary,
+.button-secondary {
   border: solid 1px;
   padding: 0.8em 1.6em;
   display: inline-block;
 }
-.button-primary:hover, .button-secondary:hover {
+
+.button-primary:hover,
+.button-secondary:hover {
   text-decoration: underline;
 }
 
@@ -107,6 +123,7 @@ header {
   color: var(--color2);
   border-color: var(--color4);
 }
+
 .button-primary:hover {
   background-color: var(--color4);
   color: var(--color3);
@@ -117,6 +134,7 @@ header {
   color: var(--color4);
   border-color: var(--color4);
 }
+
 .button-secondary:hover {
   background-color: var(--color4);
   color: var(--color3);
@@ -127,6 +145,7 @@ header {
   text-decoration: underline;
   font-weight: 500;
 }
+
 .link:hover {
   color: var(--color1);
 }
@@ -141,6 +160,7 @@ header {
   gap: 1.5rem;
   margin-top: 2rem;
 }
+
 .market-asset {
   background-color: var(--color2);
   border: solid 1px var(--color4);
@@ -157,10 +177,12 @@ header {
   flex-direction: column;
   justify-content: stretch;
 }
+
 .market-asset:hover {
   box-shadow: 0 7px 24px rgba(0, 0, 0, 0.17);
   transform: translateY(-2px);
 }
+
 .market-asset-thumbnail {
   width: 100%;
   height: auto;
@@ -173,46 +195,56 @@ header {
   justify-content: center;
   align-items: center;
 }
+
 .market-asset-thumbnail img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .market-asset-details {
   height: 100%;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
 }
+
 .market-asset-title {
   padding: 0.8rem 1rem;
 }
+
 .market-asset-title h2 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .market-asset-stars {
   display: flex;
   align-items: center;
   gap: 0.3rem;
   padding-left: 0.2rem;
 }
+
 .market-asset-stars p {
   padding-top: 2px;
 }
+
 .market-asset h2 {
   margin: 0;
 }
+
 .market-asset p {
   margin: 0;
 }
+
 .market-asset-footer {
   padding: 0 1rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .market-asset-price p {
   font-weight: 600;
   background-color: var(--color1);
@@ -231,15 +263,18 @@ header {
   color: var(--color1);
   text-align: center;
 }
+
 .hero-section h1 {
   font-size: 4rem;
   margin: 0;
 }
+
 .hero-section p {
   font-size: 1.5rem;
   margin: 1rem 0 2rem;
   max-width: 600px;
 }
+
 .hero-actions {
   display: flex;
   flex-direction: row;
@@ -251,11 +286,13 @@ header {
   margin: 0 auto 2rem;
   position: relative;
 }
+
 .image-carousel img {
   width: 100%;
   height: auto;
   border-radius: 8px;
 }
+
 .image-carousel .carousel-controls {
   position: absolute;
   top: 50%;
@@ -264,6 +301,7 @@ header {
   justify-content: space-between;
   transform: translateY(-50%);
 }
+
 .image-carousel .carousel-controls .carousel-button {
   background-color: var(--color3);
   border: solid 1px var(--color4);
@@ -278,10 +316,12 @@ header {
   cursor: pointer;
   border-radius: 50%;
 }
+
 .image-carousel .carousel-controls .carousel-button:hover {
   background-color: var(--color4);
   color: var(--color2);
 }
+
 .image-carousel .carousel-indicators {
   position: absolute;
   bottom: 1rem;
@@ -290,6 +330,7 @@ header {
   justify-content: center;
   gap: 0.5rem;
 }
+
 .image-carousel .carousel-indicators .carousel-indicator {
   width: 12px;
   height: 12px;
@@ -298,6 +339,7 @@ header {
   border-radius: 50%;
   cursor: pointer;
 }
+
 .image-carousel .carousel-indicators .carousel-indicator.active {
   background-color: var(--color4);
 }
@@ -318,6 +360,7 @@ header {
   gap: 1rem;
   margin-bottom: 1rem;
 }
+
 .product-header h1 {
   margin: 0;
   padding: 0;
@@ -336,6 +379,7 @@ header {
   align-items: center;
   padding: 0.5rem;
 }
+
 .profile-link .avatar {
   width: 40px;
   height: 40px;
@@ -350,6 +394,7 @@ header {
   align-items: center;
   gap: 0.3rem;
 }
+
 .star-rating .ratings-count {
   margin-left: 0.3rem;
 }
@@ -358,6 +403,7 @@ header {
   flex-shrink: 0;
   width: 300px;
 }
+
 .product-purchase-box {
   border: solid 1px var(--color4);
   border-radius: 8px;
@@ -365,6 +411,7 @@ header {
   display: flex;
   flex-direction: column;
 }
+
 .product-price {
   font-size: 1.5rem;
   font-weight: 700;
@@ -377,6 +424,7 @@ header {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
 .product-tag {
   background-color: var(--color4);
   color: var(--color2);
@@ -396,7 +444,9 @@ header {
   display: flex;
   background-color: var(--color4);
 }
-.button-group button, .dropdown {
+
+.button-group button,
+.dropdown {
   border: none;
   border-radius: 0;
   background-color: var(--color4);
@@ -406,17 +456,22 @@ header {
   font-weight: 500;
   font-family: inherit;
 }
+
 .button-group button {
   display: flex;
   align-items: center;
 }
+
 .dropdown {
   cursor: pointer;
 }
-.button-group button:hover, .dropdown:hover {
+
+.button-group button:hover,
+.dropdown:hover {
   background-color: var(--color1);
   color: var(--color2);
 }
+
 .button-group button.is-active {
   background-color: var(--color1);
   color: var(--color2);
@@ -426,6 +481,52 @@ header {
   border: solid 1px var(--color4);
   padding: 1rem;
 }
+
 .tiptap[contenteditable="true"]:focus-within {
   outline: none;
+}
+
+.ProseMirror-selectednode {
+  border: solid 2px var(--color1);
+  box-shadow: 0px 4px 10px #00000044;
+}
+
+.richtext-dialog {
+  background-color: var(--color4);
+  color: var(--color3);
+  border: 1px solid var(--color3);
+  position: absolute;
+  transform: translateY(42px);
+  width: 300px;
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  padding: 0.5em;
+  text-align: center;
+}
+
+.richtext-dialog button {
+  display: block;
+  border: 1px solid var(--color3);
+}
+.richtext-dialog .text-field {
+  display: block;
+  border: 1px solid var(--color3);
+}
+.richtext-dialog .text-field:focus {
+  outline: none;
+  border: 1px solid var(--color3);
+}
+
+.text-field {
+  border: solid 1px var(--color4);
+  padding: 0.8em;
+  display: inline-block;
+  background-color: var(--color4);
+  color: var(--color3);
+}
+.text-field:focus {
+  outline: none;
+  border: solid 1px var(--color4);
 }
