@@ -1,8 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { account } from './lib/appwrite';
+import type { Models } from "appwrite";
 import { NavLink } from "react-router";
 import { FaShoppingCart, FaBell, FaSearch } from "react-icons/fa";
 
 function Header() {
+  const [accountProcessed, setAccountProcessed] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState<Models.User<{
+    [key: string]: any
+  }> | null>(null);
+
+  useEffect(() => {
+    try {
+      account.get().then((user) => {
+        setAccountProcessed(true);
+        if (user) {
+          setLoggedInUser(user);
+        }
+      }).catch((reason: any) => {
+        console.error("Failed to fetch user:", reason);
+        setAccountProcessed(true);
+        setLoggedInUser(null);
+      });
+    } catch (ex) {
+      console.error("Failed to fetch user:", ex);
+      setAccountProcessed(true);
+      setLoggedInUser(null);
+    }
+  }, [account]);
+
   function focusSearchBar(event: React.MouseEvent<HTMLDivElement>): void {
     const input = event.currentTarget.querySelector('.nav-search-input') as HTMLInputElement | null;
     if (input) input.focus();
@@ -13,7 +40,6 @@ function Header() {
       <div className="nav-main">
         <NavLink to="/" className="nav-logo" id="nav-logo">Torilla</NavLink>
         <nav className="nav-links">
-          <NavLink to="/" className="nav-a" id="nav-button-home">Home</NavLink>
           <NavLink to="/market" className="nav-a" id="nav-button-market">Market</NavLink>
           <NavLink to="/about" className="nav-a" id="nav-button-about">About</NavLink>
         </nav>
@@ -25,7 +51,18 @@ function Header() {
       <nav className="nav-links">
         <a className="nav-a" id="nav-button-cart"><FaShoppingCart /></a>
         <a className="nav-a" id="nav-button-notifications"><FaBell /></a>
-        <a className="nav-a" id="nav-button-profile">Sign In</a>
+        {accountProcessed && (loggedInUser ?
+          <div className="nav-profile">
+            <p className="nav-a" id="nav-button-profile" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>{loggedInUser.name}</p>
+            {
+              showProfileDropdown &&
+              <div className="nav-profile-dropdown">
+                <NavLink to="/account" className="nav-a" id="nav-button-market">Account</NavLink>
+                <NavLink to="/logout" className="nav-a" id="nav-button-market">Log out</NavLink>
+              </div>
+            }
+          </div> :
+          <NavLink to="/login" className="nav-a" id="nav-button-profile">Log in</NavLink>)}
         <a className="nav-a" id="nav-button-dashboard">Dashboard</a>
       </nav>
     </header>
