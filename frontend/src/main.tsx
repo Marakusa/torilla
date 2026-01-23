@@ -9,22 +9,25 @@ import ProductPage from "./market/ProductPage";
 import ProductPageEditor from "./market/ProductPageEditor";
 import LoginPage from "./LoginPage";
 import LogoutPage from "./LogoutPage";
+import { AuthProvider } from "./context/AuthContext";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <Routes>
-        <Route index element={<Home />} />
-        <Route path="market" element={<Market />} />
+      <AuthProvider>
+        <Routes>
+          <Route index element={<Home />} />
+          <Route path="market" element={<Market />} />
 
-        <Route path="login" element={<LoginPage />} />
-        <Route path="logout" element={<LogoutPage />} />
+          <Route path="login" element={<LoginPage />} />
+          <Route path="logout" element={<LogoutPage />} />
 
-        <Route path=":vendorName/:urlId" element={<ProductPage />} />
-        <Route path=":vendorName/:urlId/edit" element={<ProductPageEditor />} />
+          <Route path=":vendorName/:urlId" element={<ProductPage />} />
+          <Route path=":vendorName/:urlId/edit" element={<ProductPageEditor />} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 )

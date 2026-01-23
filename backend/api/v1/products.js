@@ -2,54 +2,96 @@ const sdk = require('node-appwrite');
 const { databases } = require('../../lib/appwrite');
 const { validateSession } = require('../../utils/sessionValidator');
 
-async function mapProduct(doc) {
-  // Fetch vendor account to get username
-  let vendorData = {};
-  if (doc.vendor?._id || doc.vendor?.$id) {
-    try {
-      const accountDocs = await databases.listDocuments(
-        process.env.APPWRITE_MAIN_DATABASE_ID,
-        process.env.APPWRITE_ACCOUNTS_TABLE_ID,
-        [
-          sdk.Query.equal("profile", doc.vendor.$id),
-          sdk.Query.limit(1)
-        ]
-      );
+async function getAccountByProfile(profileId) {
+  if (!profileId) return null;
 
-      if (accountDocs?.documents?.length > 0) {
-        const accountDoc = accountDocs?.documents[0];
-        vendorData = {
-          $id: accountDoc.$id,
-          displayName: accountDoc.profile?.displayName ?? accountDoc.username,
-          username: accountDoc.username,
-        };
-      }
-    } catch {
+  const docs = await databases.listDocuments(
+    process.env.APPWRITE_MAIN_DATABASE_ID,
+    process.env.APPWRITE_ACCOUNTS_TABLE_ID,
+    [
+      sdk.Query.equal('profile', profileId),
+      sdk.Query.limit(1),
+    ]
+  );
+
+  return docs.documents?.[0] ?? null;
+}
+
+async function mapProduct(doc) {
+  let vendorData = null;
+
+  try {
+    const vendorAccount = await getAccountByProfile(doc.vendor?.$id);
+    if (vendorAccount) {
       vendorData = {
-        $id: doc.vendor.$id,
-        displayName: doc.vendor?.displayName ?? '',
-        username: '',
+        $id: vendorAccount.$id,
+        username: vendorAccount.username,
+        displayName:
+          vendorAccount.profile?.displayName ?? vendorAccount.username,
+        avatarUrl: vendorAccount.profile?.avatarUrl ?? null,
       };
     }
+  } catch {
+    vendorData = null;
   }
+
+  const reviews = await Promise.all(
+    (doc.productReviews ?? []).map(async (v) => {
+      let reviewerData = null;
+
+      try {
+        const reviewerAccount = await getAccountByProfile(v.reviewer?.$id);
+        if (reviewerAccount) {
+          reviewerData = {
+            $id: reviewerAccount.$id,
+            username: reviewerAccount.username,
+            displayName:
+              reviewerAccount.profile?.displayName ??
+              reviewerAccount.username,
+            avatarUrl: reviewerAccount.profile?.avatarUrl ?? null,
+          };
+        }
+      } catch {
+        reviewerData = null;
+      }
+
+      return {
+        $id: v.$id,
+        stars: v.stars,
+        content: v.content,
+        reviewer: reviewerData,
+        productReviewReply: v.productReviewReply
+          ? {
+            $id: v.productReviewReply.$id,
+            content: v.productReviewReply.content,
+            replier: vendorData,
+          }
+          : null,
+      };
+    })
+  );
 
   return {
     shortUrl: doc.shortUrl ?? '',
     title: doc.title ?? '',
     iconUrl: doc.iconUrl ?? '',
     description: doc.description ?? '',
+    reviewCount: doc.productReviews?.length ?? 0,
+    reviewValue: doc.productReviews?.length > 0 ? doc.productReviews?.reduce((n, {stars}) => n + stars, 0) / doc.productReviews?.length : 0.0,
     tags: doc.tags ?? [],
     thumbnails: doc.thumbnails ?? [],
     $id: doc.$id,
     $createdAt: doc.$createdAt,
     $updatedAt: doc.$updatedAt,
     vendor: vendorData,
-    versions: doc.versions?.map(v => ({
-      $id: v.$id,
-      name: v.name,
-      price: v.price,
-      currency: v.currency,
-    })) ?? [],
+    versions:
+      doc.versions?.map((v) => ({
+        $id: v.$id,
+        name: v.name,
+        price: v.price,
+        currency: v.currency,
+      })) ?? [],
+    productReviews: reviews,
   };
 }
 

@@ -1,32 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router";
 import { FaShoppingCart, FaBell, FaSearch } from "react-icons/fa";
-import api from "./lib/torillaBackend";
-import type { SessionLoginProps } from "./props/SessionLoginProps";
+import { useAuth } from "./context/AuthContext";
 
 function Header() {
-  const [accountProcessed, setAccountProcessed] = useState(false);
+  const { user, loading, logout } = useAuth();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState<SessionLoginProps | null>(null);
-
-  useEffect(() => {
-    try {
-      api.getAccount().then((account) => {
-        setAccountProcessed(true);
-        if (account) {
-          setLoggedInUser(account);
-        }
-      }).catch((reason: any) => {
-        console.error("Failed to fetch user:", reason);
-        setAccountProcessed(true);
-        setLoggedInUser(null);
-      });
-    } catch (ex) {
-      console.error("Failed to fetch user:", ex);
-      setAccountProcessed(true);
-      setLoggedInUser(null);
-    }
-  }, [api]);
 
   function focusSearchBar(event: React.MouseEvent<HTMLDivElement>): void {
     const input = event.currentTarget.querySelector('.nav-search-input') as HTMLInputElement | null;
@@ -49,9 +28,9 @@ function Header() {
       <nav className="nav-links">
         <a className="nav-a" id="nav-button-cart"><FaShoppingCart /></a>
         <a className="nav-a" id="nav-button-notifications"><FaBell /></a>
-        {accountProcessed && (loggedInUser ?
+        {!loading && (user ?
           <div className="nav-profile">
-            <p className="nav-a" id="nav-button-profile" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>{loggedInUser.user.displayName}</p>
+            <p className="nav-a" id="nav-button-profile" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>{user.user.displayName}</p>
             {
               showProfileDropdown &&
               <div className="nav-profile-dropdown">

@@ -14,6 +14,7 @@ import Image from '@tiptap/extension-image'
 import { TextStyleKit } from '@tiptap/extension-text-style'
 import { useEffect, useState } from "react"
 import type { MarketItemProps } from "../props/MarketItemProps"
+import ProductDetailedReviews from "../components/ProductDetailedReviews"
 
 const extensions = [TextStyleKit, StarterKit, Image]
 
@@ -25,6 +26,7 @@ function ProductPage() {
   useEffect(() => {
     setFetching(true);
     api.getProductByUrl(vendorName ?? "", urlId ?? "").then((fetchedProduct) => {
+      console.log(fetchedProduct);
       setProduct(fetchedProduct);
       setFetching(false);
     }).catch(() => {
@@ -75,8 +77,8 @@ function ProductPage() {
             <div className="product-header">
               <h1>{product?.title}</h1>
               <div className="product-header-details">
-                <ProfileLink username={product?.vendor?.displayName} displayName={product?.vendor?.displayName} avatarUrl={""/*product?.vendor.avatar*/} />
-                <StarRating rating={0} ratings={0} />
+                <ProfileLink username={product?.vendor?.displayName} displayName={product?.vendor?.displayName} avatarUrl={product?.vendor?.avatarUrl} />
+                <StarRating rating={product?.reviewValue} ratings={product?.reviewCount} />
               </div>
             </div>
             <div className="product-tags">
@@ -87,15 +89,20 @@ function ProductPage() {
               {editor ? <EditorContent editor={editor} /> : null}
             </div>
           </div>
-          <div className="product-purchase">
-            <div className="product-purchase-box">
-              <p className="product-price">
-                {
-                  priceNumber === 0 ? "FREE" : `${currencySymbols[product.versions[0]?.currency ?? 'USD']}${priceNumber.toFixed(2)}`
-                }
-              </p>
-              <button className="button-primary">Buy Now</button>
+
+          <div className="product-right-content">
+            <div className="product-purchase">
+              <div className="product-purchase-box">
+                <p className="product-price">
+                  {
+                    priceNumber === 0 ? "FREE" : `${currencySymbols[product.versions[0]?.currency ?? 'USD']}${priceNumber.toFixed(2)}`
+                  }
+                </p>
+                <button className="button-primary">Buy Now</button>
+              </div>
             </div>
+
+            <ProductDetailedReviews product={product} />
           </div>
         </div>
       </div>

@@ -62,9 +62,11 @@ exports.getAccount = async function (req, res) {
     return res.json({
       success: true,
       user: {
+        $id: account.$id,
         username: account.username,
         displayName: account.profile?.displayName ?? account.username,
-        email: account.email
+        email: account.email,
+        avatarUrl: account.avatarUrl,
       }
     });
   } catch (ex) {

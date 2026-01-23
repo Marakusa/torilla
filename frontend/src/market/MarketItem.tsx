@@ -1,12 +1,12 @@
-import { IoStar } from "react-icons/io5"
 import '../App.css'
 import { useNavigate } from "react-router";
 import type { MarketItemProps } from "../props/MarketItemProps";
 import { currencySymbols } from "../utils/Currencies";
+import StarRating from "../components/StarRating";
 
 function Asset(props: MarketItemProps) {
   let navigate = useNavigate();
-  
+
   const priceNumber: number = (props.versions[0]?.price ?? 0);
 
   return (
@@ -22,7 +22,7 @@ function Asset(props: MarketItemProps) {
         </div>
         <div className="market-asset-footer">
           <div className="market-asset-stars">
-            <IoStar /><p>{0} ({0})</p>
+            <StarRating rating={props.reviewValue} ratings={props.reviewCount} short />
           </div>
           <div className="market-asset-price">
             <p>

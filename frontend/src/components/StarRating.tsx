@@ -1,7 +1,8 @@
-import { IoStar, IoStarOutline } from "react-icons/io5";
+import { IoStar, IoStarHalfOutline, IoStarOutline } from "react-icons/io5";
 
-function StarRating({ rating, ratings }: { rating?: number; ratings?: number }) {
-  const filledStars = Math.round(rating ?? 0);
+function StarRating({ rating, ratings, short }: { rating?: number; ratings?: number; short?: boolean }) {
+  const filledStars = Math.floor(rating ?? 0);
+  let hasHalfStar = rating && Math.round(rating % 1 * 2) == 1;
   const totalStars = 5;
   const stars = [];
 
@@ -9,13 +10,19 @@ function StarRating({ rating, ratings }: { rating?: number; ratings?: number }) 
     if (i <= filledStars) {
       stars.push(<IoStar />);
     } else {
-      stars.push(<span key={i} className="star"><IoStarOutline /></span>);
+      if (hasHalfStar) {
+        stars.push(<IoStarHalfOutline />);
+        hasHalfStar = false;
+        continue;
+      }
+      stars.push(<IoStarOutline />);
     }
   }
   return (
     <div className="star-rating">
       {stars}
-      {ratings !== undefined && <span className="ratings-count">{ratings} ratings</span>}
+      {ratings !== undefined && !short && <span className="ratings-count">{ratings} ratings</span>}
+      {ratings !== undefined && short && <span className="ratings-count">({ratings})</span>}
     </div>
   );
 }

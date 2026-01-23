@@ -1,3 +1,4 @@
+import type { ProductReviewProps } from "./ProductReviewProps";
 import type { VendorProps } from "./VendorProps";
 
 interface MarketItemProps {
@@ -5,6 +6,8 @@ interface MarketItemProps {
   title: string,
   iconUrl: string,
   description: string,
+  reviewCount: number,
+  reviewValue: number,
   tags: string[],
   thumbnails: string[],
   $id: string,
@@ -12,6 +15,7 @@ interface MarketItemProps {
   $updatedAt: string,
   vendor: VendorProps,
   versions: AssetVersion[],
+  productReviews: ProductReviewProps[],
   $databaseId: string,
   $collectionId: string
 }
