@@ -9,13 +9,46 @@ import { IoStar } from "react-icons/io5";
 export default function ProductDetailedReviews(props: { product: MarketItemProps }) {
   const { user } = useAuth();
 
+  const reviewStars = [
+    {
+      star: 5,
+      percent: props.product?.productReviews.filter((f) => f.stars === 5).length / props.product?.reviewCount * 100
+    },
+    {
+      star: 4,
+      percent: props.product?.productReviews.filter((f) => f.stars === 4).length / props.product?.reviewCount * 100
+    },
+    {
+      star: 3,
+      percent: props.product?.productReviews.filter((f) => f.stars === 3).length / props.product?.reviewCount * 100
+    },
+    {
+      star: 2,
+      percent: props.product?.productReviews.filter((f) => f.stars === 2).length / props.product?.reviewCount * 100
+    },
+    {
+      star: 1,
+      percent: props.product?.productReviews.filter((f) => f.stars === 1).length / props.product?.reviewCount * 100
+    }
+  ]
+
   return (
     <div className="product-reviews">
-      <div className="product-reviews-title">
-        <h2>Reviews</h2>
-        <div className="product-reviews-title-rating">
-          <IoStar />
-          <span className="ratings-count pt-0.5">{props.product?.reviewValue.toFixed(1)} ({props.product?.reviewCount} reviews)</span>
+      <div className="product-reviews-details">
+        <div className="product-reviews-title">
+          <h2>Reviews</h2>
+          <div className="product-reviews-title-rating">
+            <IoStar />
+            <span className="ratings-count pt-0.5">{props.product?.reviewValue.toFixed(1)} ({props.product?.reviewCount} reviews)</span>
+          </div>
+        </div>
+        <div className="product-reviews-bars">
+          {reviewStars.map(star => <div className="product-reviews-bar-root">
+            <p>{star.star} {star.star === 1 ? "star" : "stars"}</p>
+            <div className="product-reviews-bar">
+              <div className="product-reviews-bar-fill" style={{ width: star.percent + "%" }}></div>
+            </div>
+          </div>)}
         </div>
       </div>
       {

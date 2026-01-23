@@ -57,8 +57,15 @@ function ProductPageEditor() {
     editor.commands.setContent(content);
   }, [editor, product]);
 
-  if (fetching) return <></>;
-  if (!product) return <NotFound />;
+  if (fetching) return (
+    <>
+      <Header />
+    </>);
+  if (!product) return (
+    <>
+      <Header />
+      <NotFound />
+    </>);
 
   const handleSave = () => {
     if (!editor) return;

@@ -63,8 +63,15 @@ function ProductPage() {
     editor.commands.setContent(content);
   }, [editor, product]);
 
-  if (fetching) return <></>;
-  if (!product) return <NotFound />;
+  if (fetching) return (
+    <>
+      <Header />
+    </>);
+  if (!product) return (
+    <>
+      <Header />
+      <NotFound />
+    </>);
 
   const priceNumber: number = (product.versions[0]?.price ?? 0);
 
@@ -78,7 +85,7 @@ function ProductPage() {
             <div className="product-header">
               <h1>{product?.title}</h1>
               <div className="product-header-details">
-                <ProfileLink username={product?.vendor?.displayName} displayName={product?.vendor?.displayName} avatarUrl={product?.vendor?.avatarUrl} />
+                <ProfileLink username={product?.vendor?.username} displayName={product?.vendor?.displayName} avatarUrl={product?.vendor?.avatarUrl} />
                 <StarRating rating={product?.reviewValue} ratings={product?.reviewCount} />
               </div>
             </div>
