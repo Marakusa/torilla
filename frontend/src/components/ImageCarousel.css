@@ -1,0 +1,62 @@
+.image-carousel {
+  width: 100%;
+  margin: 0 auto 2rem;
+  position: relative;
+}
+
+.image-carousel img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.image-carousel .carousel-controls {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  transform: translateY(-50%);
+}
+
+.image-carousel .carousel-controls .carousel-button {
+  background-color: var(--color3);
+  border: solid 1px var(--color4);
+  color: var(--color4);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 1rem;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.image-carousel .carousel-controls .carousel-button:hover {
+  background-color: var(--color4);
+  color: var(--color2);
+}
+
+.image-carousel .carousel-indicators {
+  position: absolute;
+  bottom: 1rem;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.image-carousel .carousel-indicators .carousel-indicator {
+  width: 12px;
+  height: 12px;
+  background-color: var(--color3);
+  border: solid 1px var(--color4);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.image-carousel .carousel-indicators .carousel-indicator.active {
+  background-color: var(--color4);
+}

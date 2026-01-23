@@ -3,6 +3,8 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Header from "../Header";
+import '../App.css';
+import './ProductPage.css';
 import MenuBar from "../components/RichTextEditorMenuBar";
 import NotFound from "../errors/NotFound";
 import { useParams } from "react-router";

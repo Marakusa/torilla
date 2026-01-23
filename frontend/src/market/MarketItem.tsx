@@ -1,4 +1,4 @@
-import '../App.css'
+import './MarketItem.css'
 import { useNavigate } from "react-router";
 import type { MarketItemProps } from "../props/MarketItemProps";
 import { currencySymbols } from "../utils/Currencies";

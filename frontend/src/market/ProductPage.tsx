@@ -1,5 +1,6 @@
 import api from '../lib/torillaBackend'
 import '../App.css'
+import './ProductPage.css'
 import Header from '../Header'
 import { useParams } from "react-router"
 import NotFound from "../errors/NotFound"

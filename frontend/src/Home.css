@@ -1,0 +1,27 @@
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--color2);
+  color: var(--color1);
+  text-align: center;
+}
+
+.hero-section h1 {
+  font-size: 4rem;
+  margin: 0;
+}
+
+.hero-section p {
+  font-size: 1.5rem;
+  margin: 1rem 0 2rem;
+  max-width: 600px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}

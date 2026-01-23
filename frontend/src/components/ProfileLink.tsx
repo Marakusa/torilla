@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import "./ProfileLink.css";
 
 function ProfileLink({ username, displayName, avatarUrl, small }: { username?: string, displayName?: string, avatarUrl?: string, small?: boolean }) {
   return (

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router";
+import "./Header.css";
 import { FaShoppingCart, FaBell, FaSearch } from "react-icons/fa";
 import { useAuth } from "./context/AuthContext";
 
 function Header() {
-  const { user, loading, logout } = useAuth();
+  const { user, loading } = useAuth();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   function focusSearchBar(event: React.MouseEvent<HTMLDivElement>): void {

@@ -1,16 +1,15 @@
 import { NavLink, useNavigate } from "react-router";
 import Header from "./Header";
+import { useAuth } from "./context/AuthContext";
 
 export default function LogoutPage() {
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   try {
-    /*account.deleteSession({
-      sessionId: 'current'
-    }).then(() => {
-      navigate("/");
-      return (<></>);
-    });*/
+    logout();
+    navigate("/");
+    return (<></>);
   } catch (ex) {
     console.error("Failed to log out:", ex);
   }

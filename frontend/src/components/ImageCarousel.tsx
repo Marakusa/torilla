@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import "./ImageCarousel.css";
 
 function ImageCarousel(props: { images: string[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);

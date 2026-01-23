@@ -1,4 +1,5 @@
 import { IoStar, IoStarHalfOutline, IoStarOutline } from "react-icons/io5";
+import "./StarRating.css";
 
 function StarRating({ rating, ratings, short }: { rating?: number; ratings?: number; short?: boolean }) {
   const filledStars = Math.floor(rating ?? 0);

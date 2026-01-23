@@ -1,0 +1,11 @@
+.star-rating {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.star-rating .ratings-count {
+  margin-left: 0.3rem;
+  margin-top: 2px;
+}

@@ -1,6 +1,8 @@
 import type { MarketItemProps } from "../props/MarketItemProps";
 import ProfileLink from "./ProfileLink";
 import StarRating from "./StarRating";
+import "./ProductDetailedReviews.css";
+import "./StarRating.css";
 import { useAuth } from "../context/AuthContext";
 import { IoStar } from "react-icons/io5";
 
