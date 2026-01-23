@@ -1,58 +1,78 @@
 import { useEffect, useState } from 'react';
-import { account, ID } from './lib/appwrite';
-import type { Models } from "appwrite";
 import { FaDiscord, FaGoogle } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import './LoginPage.css';
 import { NavLink, useNavigate } from "react-router";
+import api from "./lib/torillaBackend";
+import Cookies from 'universal-cookie';
 
 export default function LoginPage() {
   const navigate = useNavigate();
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const cookies = new Cookies(null, { path: '/' });
+
   const [showRegister, setShowRegister] = useState(false);
 
-  const [loggedInUser, setLoggedInUser] = useState<Models.User<{
-    [key: string]: any
-  }> | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
 
   const [inProgress, setInProgress] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
+  async function register(username: string, email: string, password: string) {
+    if (inProgress) {
+      return;
+    }
+
+    setError("");
+    setInProgress(true);
+
+    try {
+      await api.register(username, email, password);
+
+      setInProgress(false);
+    } catch (ex: any) {
+      console.error("Failed to register:", ex);
+      setError(ex.message);
+      setInProgress(false);
+    }
+  }
   async function login(email: string, password: string) {
     if (inProgress) {
       return;
     }
 
-    setError(false);
+    setError("");
     setInProgress(true);
 
     try {
-      await account.createEmailPasswordSession({
+      const loginData = await api.login(
         email,
         password
-      });
-      console.log(await account.get());
-      setLoggedInUser(await account.get());
+      );
+      cookies.set('X-Session-Token', loginData.xSessionToken);
+      setIsLoggedIn(true);
       setInProgress(false);
-    } catch (ex) {
+    } catch (ex: any) {
       console.error("Failed to log in:", ex);
-      setError(true);
+      setError(ex.message);
       setInProgress(false);
     }
   }
 
   useEffect(() => {
-    account.get().then((user) => {
-      if (user) {
-        setLoggedInUser(user);
+    api.getAccount().then((account) => {
+      if (account.user) {
+        setIsLoggedIn(true);
+        return;
       }
+      setIsLoggedIn(false);
     });
-  }, [account]);
+  }, [cookies]);
 
-  if (loggedInUser) {
+  if (isLoggedIn) {
     navigate("/");
     return (<></>);
   }
@@ -68,12 +88,12 @@ export default function LoginPage() {
               <div className="login-header">
                 <h1 className="italic">Torilla</h1>
                 <a onClick={() => {
-                  setError(false);
+                  setError("");
                   setShowRegister(true);
                 }}>Sign up</a>
               </div>
 
-              {error && (<p className="error-message">Failed to log in, please try again</p>)}
+              {error != "" && (<p className="error-message">{error}</p>)}
 
               <div className="login-inputs">
                 <p className="input-label">Username or E-mail</p>
@@ -107,12 +127,12 @@ export default function LoginPage() {
               <div className="login-header">
                 <h1 className="italic">Torilla</h1>
                 <a onClick={() => {
-                  setError(false);
+                  setError("");
                   setShowRegister(false);
                 }}>Log in</a>
               </div>
 
-              {error && (<p className="error-message">Failed to sign up, please try again</p>)}
+              {error != "" && (<p className="error-message">{error}</p>)}
 
               <div className="login-inputs">
                 <p className="input-label">Username</p>
@@ -123,12 +143,7 @@ export default function LoginPage() {
                 <input type="password" id="register-password" className="text-field-secondary" placeholder="Password..." onChange={e => setPassword(e.target.value)} />
               </div>
               <button className="button-primary" onClick={async () => {
-                await account.create({
-                  userId: ID.unique(),
-                  email,
-                  password,
-                  name: username
-                });
+                register(username, email, password);
                 login(email, password);
               }}>Register</button>
 

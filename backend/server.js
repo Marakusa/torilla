@@ -3,7 +3,15 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT;
 
+app.use(express.json()); 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-Session-Token");
+  next();
+});
+
 const ProductsAPI = require('./api/v1/products');
+const AuthAPI = require('./api/v1/auth');
 
 // - Main -
 app.get('/', (req, res) => {
@@ -13,10 +21,25 @@ app.get('/v1', (req, res) => {
   res.send('Torilla API v1');
 });
 
+// - Auth API -
+
+// GET /auth/account
+app.get('/v1/auth/account', AuthAPI.getAccount);
+// POST /auth/login
+app.post('/v1/auth/login', AuthAPI.login);
+// POST /auth/register
+app.post('/v1/auth/register', AuthAPI.register);
+
 // - Products API -
 
 // GET /products/list
-app.get('/v1/products/list', ProductsAPI.productsList);
+app.get('/v1/products/list', ProductsAPI.getProductsList);
+// GET /products/:id
+app.get('/v1/products/:id', ProductsAPI.getProductById);
+// GET /products/:vendorName/:shortUrl
+app.get('/v1/products/:vendorName/:shortUrl', ProductsAPI.getProductByUrl);
+// POST /products/:id/description
+app.post('/v1/products/:id/description', ProductsAPI.updateProductDescription);
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

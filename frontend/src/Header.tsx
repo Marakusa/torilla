@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { account } from './lib/appwrite';
-import type { Models } from "appwrite";
 import { NavLink } from "react-router";
 import { FaShoppingCart, FaBell, FaSearch } from "react-icons/fa";
+import api from "./lib/torillaBackend";
+import type { SessionLoginProps } from "./props/SessionLoginProps";
 
 function Header() {
   const [accountProcessed, setAccountProcessed] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState<Models.User<{
-    [key: string]: any
-  }> | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<SessionLoginProps | null>(null);
 
   useEffect(() => {
     try {
-      account.get().then((user) => {
+      api.getAccount().then((account) => {
         setAccountProcessed(true);
-        if (user) {
-          setLoggedInUser(user);
+        if (account) {
+          setLoggedInUser(account);
         }
       }).catch((reason: any) => {
         console.error("Failed to fetch user:", reason);
@@ -28,7 +26,7 @@ function Header() {
       setAccountProcessed(true);
       setLoggedInUser(null);
     }
-  }, [account]);
+  }, [api]);
 
   function focusSearchBar(event: React.MouseEvent<HTMLDivElement>): void {
     const input = event.currentTarget.querySelector('.nav-search-input') as HTMLInputElement | null;
@@ -53,7 +51,7 @@ function Header() {
         <a className="nav-a" id="nav-button-notifications"><FaBell /></a>
         {accountProcessed && (loggedInUser ?
           <div className="nav-profile">
-            <p className="nav-a" id="nav-button-profile" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>{loggedInUser.name}</p>
+            <p className="nav-a" id="nav-button-profile" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>{loggedInUser.user.displayName}</p>
             {
               showProfileDropdown &&
               <div className="nav-profile-dropdown">

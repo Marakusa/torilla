@@ -1,8 +1,8 @@
+import api from '../lib/torillaBackend'
 import '../App.css'
 import Header from '../Header'
 import { useParams } from "react-router"
 import NotFound from "../errors/NotFound"
-import demoAssets from "../demo/assets.json"
 import ImageCarousel from "../components/ImageCarousel"
 import ProfileLink from "../components/ProfileLink"
 import StarRating from "../components/StarRating"
@@ -11,52 +11,68 @@ import { currencySymbols } from "../utils/Currencies"
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { TextStyleKit } from '@tiptap/extension-text-style'
+import { useEffect, useState } from "react"
+import type { MarketItemProps } from "../props/MarketItemProps"
 
 const extensions = [TextStyleKit, StarterKit]
 
 function ProductPage() {
-  const { vendorName, urlId } = useParams<{ vendorName?: string, urlId?: string }>();
+  const { vendorName, urlId } = useParams<{ vendorName: string, urlId: string }>();
+  const [fetching, setFetching] = useState<boolean>(true);
+  const [product, setProduct] = useState<MarketItemProps | null>(null);
 
-  const product = demoAssets.find(asset => asset.urlId.toLowerCase() === urlId?.toLowerCase() && asset.vendor?.username.toLowerCase() === vendorName?.toLowerCase());
+  useEffect(() => {
+    setFetching(true);
+    api.getProductByUrl(vendorName ?? "", urlId ?? "").then((fetchedProduct) => {
+      setProduct(fetchedProduct);
+      setFetching(false);
+    }).catch(() => {
+      setFetching(false);
+    });
+  }, [api, vendorName, urlId]);
 
-  if (!product) {
-    return <NotFound />;
-  }
+  if (fetching) return <div>Loading...</div>;
+  if (!product) return <NotFound />;
 
-  let initialContent: any = product.content ?? null;
-  try {
-    const storedFull = localStorage.getItem(`product-${product.urlId}`);
-    if (storedFull) {
-      const parsed = JSON.parse(storedFull);
-      initialContent = parsed.content ?? parsed;
-    } else {
-      const storedContent = localStorage.getItem(`product-content-${product.urlId}`);
-      if (storedContent) initialContent = JSON.parse(storedContent);
+  const [initialContent, setInitialContent] = useState('');
+
+  useEffect(() => {
+    let content: any = product?.description ?? '';
+    try {
+      const storedFull = localStorage.getItem(`product-${product?.shortUrl}`);
+      if (storedFull) {
+        const parsed = JSON.parse(storedFull);
+        content = parsed.content ?? parsed;
+      } else {
+        const storedContent = localStorage.getItem(`product-content-${product?.shortUrl}`);
+        if (storedContent) content = JSON.parse(storedContent);
+      }
+    } catch (e) {
+      console.error("Failed to load stored product content:", e);
     }
-  } catch (e) {
-    console.error("Failed to load stored product content:", e);
-  }
+    setInitialContent(content);
+  }, [product]);
 
   const editor = useEditor({
     extensions,
     editable: false,
-    content: initialContent ?? '',
+    content: initialContent,
   });
 
   const priceNumber: number = (product.versions[0]?.price ?? 0);
-  
+
   return (
     <>
       <Header />
       <div className="content">
-        <ImageCarousel images={product.images ?? []} />
+        <ImageCarousel images={product.thumbnails ?? []} />
         <div className="product-content">
           <div className="product-body">
             <div className="product-header">
               <h1>{product?.title}</h1>
               <div className="product-header-details">
-                <ProfileLink username={product?.vendor?.username} displayName={product?.vendor?.displayName} avatarUrl={product?.vendor.avatar} />
-                <StarRating rating={product?.rating} ratings={product?.ratings} />
+                <ProfileLink username={product?.vendor?.displayName} displayName={product?.vendor?.displayName} avatarUrl={""/*product?.vendor.avatar*/} />
+                <StarRating rating={0} ratings={0} />
               </div>
             </div>
             <div className="product-tags">

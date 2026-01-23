@@ -4,13 +4,15 @@ import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import Header from "../Header";
 import MenuBar from "../components/RichTextEditorMenuBar";
-import demoAssets from "../demo/assets.json"
 import NotFound from "../errors/NotFound";
 import { useParams } from "react-router";
 
 const extensions = [TextStyleKit, StarterKit, Image]
 
 function ProductPageEditor() {
+  return (<></>)
+}
+/*function ProductPageEditor() {
   const { vendorName, urlId } = useParams<{ vendorName?: string, urlId?: string }>();
   
   const product = demoAssets.find(asset => asset.urlId.toLowerCase() === urlId?.toLowerCase() && asset.vendor?.username.toLowerCase() === vendorName?.toLowerCase());
@@ -55,6 +57,6 @@ function ProductPageEditor() {
       </div>
     </>
   );
-}
+}*/
 
 export default ProductPageEditor

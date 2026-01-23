@@ -1,17 +1,37 @@
 import './App.css'
 import Header from './Header'
 import Asset from "./market/MarketItem"
-import demoAssets from "./demo/assets.json"
+import api from './lib/torillaBackend'
+import { useEffect, useState } from "react"
+import type { MarketItemProps } from "./props/MarketItemProps"
 
 function Market() {
+  const [ products, setProducts ] = useState<MarketItemProps[] | null>(null);
+  const [ fetchingProducts, setFetchingProducts ] = useState<boolean>(false);
+
+  async function fetchProducts() {
+    if (fetchingProducts) {
+      return;
+    }
+
+    setFetchingProducts(true);
+    const fetchedProducts = await api.listProducts();
+    setProducts(fetchedProducts);
+    setFetchingProducts(false);
+  }
+
+  useEffect(() => {
+    fetchProducts();
+  }, [products, fetchingProducts]);
+
   return (
     <>
       <Header />
       <div className="content">
         <h1>Market</h1>
         <div className="market-assets">
-          {demoAssets.map((asset, index) => (
-            <Asset key={index} item={asset} />
+          {products?.map((asset, index) => (
+            <Asset key={index} {...asset} />
           ))}
         </div>
       </div>
