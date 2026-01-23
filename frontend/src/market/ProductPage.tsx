@@ -10,11 +10,12 @@ import { currencySymbols } from "../utils/Currencies"
 
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
 import { TextStyleKit } from '@tiptap/extension-text-style'
 import { useEffect, useState } from "react"
 import type { MarketItemProps } from "../props/MarketItemProps"
 
-const extensions = [TextStyleKit, StarterKit]
+const extensions = [TextStyleKit, StarterKit, Image]
 
 function ProductPage() {
   const { vendorName, urlId } = useParams<{ vendorName: string, urlId: string }>();
@@ -31,33 +32,36 @@ function ProductPage() {
     });
   }, [api, vendorName, urlId]);
 
-  if (fetching) return <div>Loading...</div>;
-  if (!product) return <NotFound />;
-
-  const [initialContent, setInitialContent] = useState('');
-
-  useEffect(() => {
-    let content: any = product?.description ?? '';
-    try {
-      const storedFull = localStorage.getItem(`product-${product?.shortUrl}`);
-      if (storedFull) {
-        const parsed = JSON.parse(storedFull);
-        content = parsed.content ?? parsed;
-      } else {
-        const storedContent = localStorage.getItem(`product-content-${product?.shortUrl}`);
-        if (storedContent) content = JSON.parse(storedContent);
-      }
-    } catch (e) {
-      console.error("Failed to load stored product content:", e);
-    }
-    setInitialContent(content);
-  }, [product]);
-
   const editor = useEditor({
     extensions,
     editable: false,
-    content: initialContent,
+    content: '',
   });
+
+  useEffect(() => {
+    if (!editor || !product) return;
+
+    let content: any = '';
+    try {
+      const storedFull = localStorage.getItem(`product-${product.shortUrl}`);
+      if (storedFull) {
+        const parsed = JSON.parse(storedFull);
+        content = parsed.content ?? parsed;
+      } else if (product.description) {
+        const bytes = Uint8Array.from(atob(product.description), c => c.charCodeAt(0));
+        const jsonString = new TextDecoder().decode(bytes);
+        content = JSON.parse(jsonString);
+      }
+    } catch (e) {
+      console.error("Failed to load stored product content:", e);
+      content = '';
+    }
+
+    editor.commands.setContent(content);
+  }, [editor, product]);
+
+  if (fetching) return <></>;
+  if (!product) return <NotFound />;
 
   const priceNumber: number = (product.versions[0]?.price ?? 0);
 

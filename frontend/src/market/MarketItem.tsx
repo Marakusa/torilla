@@ -11,7 +11,7 @@ function Asset(props: MarketItemProps) {
 
   return (
     <div className="market-asset" onClick={() => {
-      //navigate("/" + props.vendor? + "/" + props.shortUrl);
+      navigate("/" + props.vendor?.username + "/" + props.shortUrl);
     }}>
       <div className="market-asset-thumbnail">
         <img src={props.iconUrl} />

@@ -14,7 +14,7 @@ async function hashKey(key) {
 exports.validateSession = async function (xSessionToken, userId) {
   try {
     if (!xSessionToken) {
-      return res.status(401).json({ error: true });
+      return false;
     }
 
     let decodedToken;

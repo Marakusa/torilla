@@ -1,6 +1,7 @@
 interface VendorProps {
   userId: string,
   displayName: string,
+  username?: string,
   isVendor: boolean,
   $id: string,
   $createdAt: string,

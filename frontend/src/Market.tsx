@@ -8,6 +8,7 @@ import type { MarketItemProps } from "./props/MarketItemProps"
 function Market() {
   const [ products, setProducts ] = useState<MarketItemProps[] | null>(null);
   const [ fetchingProducts, setFetchingProducts ] = useState<boolean>(false);
+  const [ fetchedProducts, setFetchedProducts ] = useState<boolean>(false);
 
   async function fetchProducts() {
     if (fetchingProducts) {
@@ -18,9 +19,13 @@ function Market() {
     const fetchedProducts = await api.listProducts();
     setProducts(fetchedProducts);
     setFetchingProducts(false);
+    setFetchedProducts(true);
   }
 
   useEffect(() => {
+    if (fetchedProducts || fetchingProducts) {
+      return;
+    }
     fetchProducts();
   }, [products, fetchingProducts]);
 
