@@ -1,0 +1,6 @@
+.market-assets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 2rem 0 8rem;
+}

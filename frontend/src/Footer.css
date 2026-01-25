@@ -1,0 +1,52 @@
+footer {
+  display: flex;
+  flex-direction: column;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4em;
+  background-color: var(--color5);
+  color: var(--color3);
+}
+
+.footer-main {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.footer-logo-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  gap: 0;
+  width: 25%;
+}
+.footer-logo-main p {
+  margin: 0;
+}
+
+.footer-logo {
+  font-size: 3.2em;
+  line-height: 1.1;
+  font-family: "DM Serif Text", serif;
+  color: var(--color3);
+  margin: 0.5rem 0;
+  font-size: 3rem;
+  font-weight: 900;
+  font-style: italic;
+  user-select: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.footer-link-list {
+  display: flex;
+  flex-direction: column;
+  width: 25%;
+}
+
+footer .copyright {
+  margin: 4em 0 0;
+  text-align: center;
+}

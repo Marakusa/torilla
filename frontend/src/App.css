@@ -62,6 +62,16 @@
   color: var(--color1);
 }
 
+.link-secondary {
+  color: var(--color3);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.link-secondary:hover {
+  color: var(--color1);
+}
+
 .navigation-history {
   margin-bottom: 1rem;
 }

@@ -2,6 +2,7 @@ import { NavLink } from "react-router"
 import './App.css'
 import './Home.css'
 import Header from './Header'
+import Footer from "./Footer"
 
 function Home() {
   return (
@@ -15,6 +16,7 @@ function Home() {
           <NavLink to="/signup" className="button-secondary">Start Selling</NavLink>
         </div>
       </div>
+      <Footer />
     </>
   )
 }

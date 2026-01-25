@@ -17,6 +17,21 @@ async function getAccountByProfile(profileId) {
   return docs.documents?.[0] ?? null;
 }
 
+async function getProfileIdByUsername(username) {
+  if (!username) return null;
+
+  const docs = await databases.listDocuments(
+    process.env.APPWRITE_MAIN_DATABASE_ID,
+    process.env.APPWRITE_ACCOUNTS_TABLE_ID,
+    [
+      sdk.Query.equal('username', username),
+      sdk.Query.limit(1),
+    ]
+  );
+
+  return docs.documents?.[0].profile.$id ?? null;
+}
+
 async function mapProduct(doc) {
   let vendorData = null;
 
@@ -77,7 +92,7 @@ async function mapProduct(doc) {
     iconUrl: doc.iconUrl ?? '',
     description: doc.description ?? '',
     reviewCount: doc.productReviews?.length ?? 0,
-    reviewValue: doc.productReviews?.length > 0 ? doc.productReviews?.reduce((n, {stars}) => n + stars, 0) / doc.productReviews?.length : 0.0,
+    reviewValue: doc.productReviews?.length > 0 ? doc.productReviews?.reduce((n, { stars }) => n + stars, 0) / doc.productReviews?.length : 0.0,
     tags: doc.tags ?? [],
     thumbnails: doc.thumbnails ?? [],
     $id: doc.$id,
@@ -108,6 +123,44 @@ exports.getProductsList = async function (req, res) {
       [
         sdk.Query.limit(Number(safeLimit)),
         sdk.Query.offset(Number(safeOffset))
+      ]
+    );
+
+    const cleanProducts = await Promise.all(documents.documents.map(mapProduct));
+    res.json(cleanProducts);
+  } catch (ex) {
+    console.error(ex);
+    return res.status(500).json({
+      error: true,
+      message: "Failed to fetch products."
+    });
+  }
+}
+
+exports.getProductsListByName = async function (req, res) {
+  const { vendorName } = req.params;
+  const { limit = 25, offset = 0 } = req.query;
+
+  const safeLimit = Math.min(Number(limit) || 25, 100);
+  const safeOffset = Math.max(Number(offset) || 0, 0);
+
+  try {
+    const vendorId = await getProfileIdByUsername(vendorName);
+
+    if (!vendorId) {
+      return res.status(404).json({
+        error: true,
+        message: "Vendor not found."
+      });
+    }
+
+    const documents = await databases.listDocuments(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_PRODUCTS_TABLE_ID,
+      [
+        sdk.Query.limit(Number(safeLimit)),
+        sdk.Query.offset(Number(safeOffset)),
+        sdk.Query.equal("vendor", vendorId)
       ]
     );
 

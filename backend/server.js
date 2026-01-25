@@ -10,8 +10,9 @@ app.use(function(req, res, next) {
   next();
 });
 
-const ProductsAPI = require('./api/v1/products');
 const AuthAPI = require('./api/v1/auth');
+const ProductsAPI = require('./api/v1/products');
+const ProfilesAPI = require('./api/v1/profiles');
 
 // - Main -
 app.get('/', (req, res) => {
@@ -34,12 +35,20 @@ app.post('/v1/auth/register', AuthAPI.register);
 
 // GET /products/list
 app.get('/v1/products/list', ProductsAPI.getProductsList);
+// GET /products/list/:vendorName
+app.get('/v1/products/list/:vendorName', ProductsAPI.getProductsListByName);
 // GET /products/:id
 app.get('/v1/products/:id', ProductsAPI.getProductById);
 // GET /products/:vendorName/:shortUrl
 app.get('/v1/products/:vendorName/:shortUrl', ProductsAPI.getProductByUrl);
 // POST /products/:id/description
 app.post('/v1/products/:id/description', ProductsAPI.updateProductDescription);
+
+// - Profiles API -
+
+// GET /profiles/:username
+app.get('/v1/profiles/:username', ProfilesAPI.getProfileByUsername);
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

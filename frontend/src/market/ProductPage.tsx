@@ -27,7 +27,6 @@ function ProductPage() {
   useEffect(() => {
     setFetching(true);
     api.getProductByUrl(vendorName ?? "", urlId ?? "").then((fetchedProduct) => {
-      console.log(fetchedProduct);
       setProduct(fetchedProduct);
       setFetching(false);
     }).catch(() => {

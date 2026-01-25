@@ -10,6 +10,7 @@ import ProductPageEditor from "./market/ProductPageEditor";
 import LoginPage from "./LoginPage";
 import LogoutPage from "./LogoutPage";
 import { AuthProvider } from "./context/AuthContext";
+import ProfilePage from "./ProfilePage";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="login" element={<LoginPage />} />
           <Route path="logout" element={<LogoutPage />} />
 
+          <Route path=":username" element={<ProfilePage />} />
           <Route path=":vendorName/:urlId" element={<ProductPage />} />
           <Route path=":vendorName/:urlId/edit" element={<ProductPageEditor />} />
 
