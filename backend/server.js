@@ -11,6 +11,7 @@ app.use(function(req, res, next) {
 });
 
 const AuthAPI = require('./api/v1/auth');
+const AccountAPI = require('./api/v1/account');
 const ProductsAPI = require('./api/v1/products');
 const ProfilesAPI = require('./api/v1/profiles');
 
@@ -24,12 +25,21 @@ app.get('/v1', (req, res) => {
 
 // - Auth API -
 
-// GET /auth/account
-app.get('/v1/auth/account', AuthAPI.getAccount);
 // POST /auth/login
 app.post('/v1/auth/login', AuthAPI.login);
 // POST /auth/register
 app.post('/v1/auth/register', AuthAPI.register);
+
+// - Account API -
+
+// GET /account
+app.get('/v1/account', AccountAPI.getAccount);
+// PATCH /account
+app.patch('/v1/account', AccountAPI.updateAccountDetails);
+// POST /account/avatar
+app.post('/v1/account/avatar', AccountAPI.uploadAvatarPicture);
+// PUT /account/password
+app.put('/v1/account/password', AccountAPI.changePassword);
 
 // - Products API -
 

@@ -11,6 +11,7 @@ import LoginPage from "./LoginPage";
 import LogoutPage from "./LogoutPage";
 import { AuthProvider } from "./context/AuthContext";
 import ProfilePage from "./ProfilePage";
+import SettingsPage from "./settings/SettingsPage";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -24,6 +25,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path="logout" element={<LogoutPage />} />
 
           <Route path=":username" element={<ProfilePage />} />
+          <Route path="settings" element={<SettingsPage />} />
+
           <Route path=":vendorName/:urlId" element={<ProductPage />} />
           <Route path=":vendorName/:urlId/edit" element={<ProductPageEditor />} />
 

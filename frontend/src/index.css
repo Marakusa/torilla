@@ -100,6 +100,13 @@ button:hover {
   transform: translateX(-2px) translateY(-2px);
   box-shadow: 2px 2px var(--color3);
 }
+button:active {
+  text-decoration: underline;
+  background-color: var(--color4);
+  color: var(--color3);
+  transform: translateX(0) translateY(0);
+  box-shadow: 0 0 var(--color3);
+}
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;

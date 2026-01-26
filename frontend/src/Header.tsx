@@ -35,7 +35,11 @@ function Header() {
             {
               showProfileDropdown &&
               <div className="nav-profile-dropdown">
-                <NavLink to="/account" className="nav-a" id="nav-button-market">Account</NavLink>
+                <NavLink to={"/" + user.user.username} className="nav-a" id="nav-button-market">Profile</NavLink>
+                <NavLink to="/settings" className="nav-a" id="nav-button-market">Settings</NavLink>
+                <hr></hr>
+                <NavLink to="/dashboard" className="nav-a" id="nav-button-market">Creator Dashboard</NavLink>
+                <hr></hr>
                 <NavLink to="/logout" className="nav-a" id="nav-button-market">Log out</NavLink>
               </div>
             }

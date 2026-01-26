@@ -3,6 +3,8 @@ interface UserProps {
   username: string,
   displayName: string,
   email: string,
+  avatarUrl: string,
+  birthDate: string,
 }
 
 export type { UserProps };
