@@ -1,10 +1,11 @@
 const sdk = require('node-appwrite');
-const { databases } = require('../../lib/appwrite');
+const { InputFile } = require('node-appwrite/file');
+const { databases, storage } = require('../../lib/appwrite');
 var base64 = require('base-64');
-const { validateSession } = require('../../utils/sessionValidator');
+const os = require('os');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
+const { validateSession } = require('../../utils/sessionValidator');
 
 exports.getAccount = async function (req, res) {
   try {
@@ -58,7 +59,7 @@ exports.getAccount = async function (req, res) {
         username: account.username,
         displayName: account.profile?.displayName ?? account.username,
         email: account.email,
-        avatarUrl: account.avatarUrl,
+        avatarUrl: account.profile?.avatarUrl,
         birthDate: account.birthDate,
       }
     });
@@ -98,36 +99,25 @@ exports.uploadAvatarPicture = async function (req, res) {
 
     const accountId = sessionDoc.account.$id;
 
-    // Require file either as multipart (req.file.buffer) or base64 in body.avatarBase64
-    if (!req.file && !req.body?.avatarBase64) {
+    if (!req.files || !req.files.file) {
       return res.status(400).json({ error: true, message: "No avatar provided." });
     }
 
-    // Prepare Appwrite storage client
-    const client = new sdk.Client()
-      .setEndpoint(process.env.APPWRITE_ENDPOINT)
-      .setProject(process.env.APPWRITE_PROJECT_ID)
-      .setKey(process.env.APPWRITE_API_KEY);
-
-    const storage = new sdk.Storage(client);
-
-    // Write upload to temp file so we can pass a ReadStream to Appwrite SDK
-    const tmpPath = path.join(os.tmpdir(), sdk.ID.unique());
-    if (req.file && req.file.buffer) {
-      fs.writeFileSync(tmpPath, req.file.buffer);
-    } else {
-      // avatarBase64 expected to be raw base64 (no data URI prefix)
-      const buffer = Buffer.from(req.body.avatarBase64, 'base64');
-      fs.writeFileSync(tmpPath, buffer);
+    if (req.files.file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: true, message: "Avatar too large." });
     }
-    const fileStream = fs.createReadStream(tmpPath);
+    if (!req.files.file.mimetype.startsWith("image/")) {
+      return res.status(400).json({ error: true, message: "Invalid file type." });
+    }
+
+    const tempFile = InputFile.fromPath(req.files.file.tempFilePath, req.files.file.name);
 
     // Upload file
     const bucketId = process.env.APPWRITE_ACCOUNT_AVATARS_BUCKET_ID;
-    const resultFile = await storage.createFile(bucketId, sdk.ID.unique(), fileStream);
+    const resultFile = await storage.createFile(bucketId, sdk.ID.unique(), tempFile);
 
     // cleanup temp file
-    try { fs.unlinkSync(tmpPath); } catch (e) {}
+    try { fs.unlinkSync(req.files.file.tempFilePath); } catch (e) { }
 
     // Fetch current account to find old avatar file id (if any)
     const account = await databases.getDocument(
@@ -137,10 +127,10 @@ exports.uploadAvatarPicture = async function (req, res) {
     );
 
     // Attempt to determine old file id (prefer explicit avatarFileId)
-    let oldFileId = account.avatarFileId;
-    if (!oldFileId && account.avatarUrl) {
+    let oldFileId = account.profile.avatarFileId;
+    if (!oldFileId && account.profile.avatarUrl) {
       // try to extract file id from an Appwrite storage URL if present
-      const m = account.avatarUrl.match(/\/files\/([^/]+)\/view/);
+      const m = account.profile.avatarUrl.match(/\/files\/([^/]+)\/view/);
       if (m) oldFileId = m[1];
     }
 
@@ -152,13 +142,15 @@ exports.uploadAvatarPicture = async function (req, res) {
     }
 
     // Construct public view URL for the uploaded file
-    const avatarUrl = `${process.env.APPWRITE_ENDPOINT}/storage/buckets/${resultFile.bucketId}/files/${resultFile.$id}/view?project=${process.env.APPWRITE_PROJECT_ID}`;
+    const avatarUrl =
+      `${process.env.APPWRITE_PUBLIC_ENDPOINT}/storage/buckets/${bucketId}` +
+      `/files/${resultFile.$id}/preview?width=256&height=256&quality=80&project=${process.env.APPWRITE_PROJECT_ID}`;
 
     // Update account document with new avatar info
     await databases.updateDocument(
       process.env.APPWRITE_MAIN_DATABASE_ID,
-      process.env.APPWRITE_ACCOUNTS_TABLE_ID,
-      accountId,
+      process.env.APPWRITE_PROFILES_TABLE_ID,
+      account.profile.$id,
       {
         avatarUrl,
         avatarFileId: resultFile.$id
@@ -173,13 +165,9 @@ exports.uploadAvatarPicture = async function (req, res) {
 }
 
 exports.updateAccountDetails = async function (req, res) {
-  
-}
 
-exports.uploadAvatarPicture = async function (req, res) {
-  
 }
 
 exports.changePassword = async function (req, res) {
-  
+
 }

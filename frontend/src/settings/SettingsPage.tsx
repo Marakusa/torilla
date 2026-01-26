@@ -53,6 +53,7 @@ export default function SettingsPage() {
         return;
       }
       await api.uploadAccountAvatar(avatarFile);
+      window.location.reload();
     } catch (ex) {
       console.error(ex);
       setAvatarError("Failed to upload avatar.");

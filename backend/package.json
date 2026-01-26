@@ -15,6 +15,7 @@
     "base-64": "^1.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-fileupload": "^1.5.2",
     "node-appwrite": "^15.0.1",
     "uuid": "^13.0.0"
   },

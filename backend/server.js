@@ -1,10 +1,20 @@
 require('dotenv').config();
 const express = require('express');
+const os = require('os');
+const fileUpload = require('express-fileupload');
 const app = express();
 const port = process.env.PORT;
 
-app.use(express.json()); 
-app.use(function(req, res, next) {
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(fileUpload({
+  useTempFiles: true,
+  tempFileDir: os.tmpdir(),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+}));
+
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-Session-Token");
   next();
