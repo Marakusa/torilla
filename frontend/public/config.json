@@ -4,6 +4,9 @@
     "projectId": "69721efc00126b0ce60f"
   },
   "backend": {
-    "host": "http://localhost:3000/v1"
+    "host": "http://localhost:11001/v1"
+  },
+  "cors": {
+    "allowed": "http://localhost:11001"
   }
 }
