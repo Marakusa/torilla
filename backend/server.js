@@ -1,9 +1,23 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const os = require('os');
 const fileUpload = require('express-fileupload');
 const app = express();
 const port = process.env.PORT;
+
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN,
+  credentials: true,
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "X-Session-Token"
+  ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -13,12 +27,6 @@ app.use(fileUpload({
   tempFileDir: os.tmpdir(),
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB
 }));
-
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-Session-Token");
-  next();
-});
 
 const AuthAPI = require('./api/v1/auth');
 const AccountAPI = require('./api/v1/account');
@@ -73,7 +81,7 @@ app.post('/v1/products/:id/description', ProductsAPI.updateProductDescription);
 // GET /profiles/:username
 app.get('/v1/profiles/:username', ProfilesAPI.getProfileByUsername);
 
-
+// Start server
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

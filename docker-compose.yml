@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: torilla-frontend:latest
+    container_name: torilla-frontend
+    restart: always
+    ports:
+      - "11000:11000"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: torilla-backend:latest
+    container_name: torilla-backend
+    restart: always
+    ports:
+      - "11001:11001"
+    environment:
+      - PORT=11001
