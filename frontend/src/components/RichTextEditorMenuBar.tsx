@@ -1,6 +1,6 @@
 import type { Editor } from '@tiptap/react'
 import { useEditorState } from '@tiptap/react'
-import { useCallback, useState, useRef, useEffect, type ChangeEvent } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { FaBold, FaCode, FaImage, FaItalic, FaLink, FaListOl, FaListUl, FaQuoteRight, FaRedo, FaStrikethrough, FaUndo } from "react-icons/fa"
 import { MdHorizontalRule } from "react-icons/md"
 

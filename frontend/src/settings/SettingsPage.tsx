@@ -26,7 +26,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState<string | undefined>(user?.user.email ?? undefined);
   const [birthDateOriginal, setBirthDateOriginal] = useState<string | undefined>(user?.user.birthDate ?? undefined);
   const [birthDate, setBirthDate] = useState<string | undefined>(user?.user.birthDate ?? undefined);
-  const [mainError, setMainError] = useState<string>("");
+  const [mainError, /*setMainError*/] = useState<string>("");
 
   const [newPassword, setNewPassword] = useState<string>("");
   const [newPasswordRepeat, setNewPasswordRepeat] = useState<string>("");
