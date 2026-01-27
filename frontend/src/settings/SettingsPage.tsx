@@ -5,6 +5,8 @@ import { useAuth } from "../context/AuthContext";
 import "./SettingsPage.css";
 import api from "../lib/torillaBackend";
 import { FaTrash } from "react-icons/fa";
+import { Link } from "react-router";
+import type { SessionData } from "./SessionData";
 
 export default function SettingsPage() {
   const { user, loading } = useAuth();
@@ -29,6 +31,10 @@ export default function SettingsPage() {
   const [newPassword, setNewPassword] = useState<string>("");
   const [newPasswordRepeat, setNewPasswordRepeat] = useState<string>("");
   const [passwordError, setPasswordError] = useState<string>("");
+
+  const [sessionList, setSessionList] = useState<SessionData[]>([]);
+  const [sessionListLoading, setSessionListLoading] = useState<boolean>(false);
+  const [sessionError, setSessionError] = useState<string>("");
 
   function pickAvatarFile() {
     avatarUploadInput.current?.click();
@@ -88,6 +94,27 @@ export default function SettingsPage() {
     }
   }, [loading, user]);
 
+  useEffect(() => {
+    if (sessionListLoading || sessionList.length > 0) {
+      return;
+    }
+
+    setSessionListLoading(true);
+
+    try {
+      api.getAllSessions().then((sessionListData) => {
+        console.log(sessionListData);
+        setSessionList(sessionListData);
+      }).catch((reason) => {
+        console.error(reason);
+        setSessionError("Failed to fetch sessions, please try again later.");
+      });
+    } catch (ex) {
+      console.error(ex);
+      setSessionError("Failed to fetch sessions, please try again later.");
+    }
+  }, [sessionList, setSessionList]);
+
   if (loading) {
     return <div>
       <Header />
@@ -99,6 +126,9 @@ export default function SettingsPage() {
     <div>
       <Header />
 
+      <div className="settings-return">
+        <Link to={`/${user?.user.username}`}>&lt;&lt;&lt; Return to Profile</Link>
+      </div>
       <div className="content settings-content">
         <h1>Settings</h1>
         <div className="settings-form-content">
@@ -147,6 +177,23 @@ export default function SettingsPage() {
             {passwordError != "" && (<p className="error-message" style={{ marginTop: "1em" }}>{passwordError}</p>)}
 
             {(newPassword.length > 0 && newPasswordRepeat.length > 0) && <button className="save-button" onClick={() => changePassword(newPassword, newPasswordRepeat)}>Save</button>}
+          </section>
+        </div>
+        <div className="settings-form-content">
+          <h2>Sessions</h2>
+
+          {sessionError != "" && (<p className="error-message" style={{ marginTop: "1em" }}>{sessionError}</p>)}
+
+          <section>
+            {sessionList.filter((f) => f !== null).map(session => 
+              <div key={session.id}>
+                <p>{session.browser}</p>
+                <p>{session.isSelf}</p>
+                <p>{session.lastActivity}</p>
+                <p>{session.location}</p>
+              </div>
+            )}
+            <button className="button-primary">Terminate All Sessions</button>
           </section>
         </div>
       </div>

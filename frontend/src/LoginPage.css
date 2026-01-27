@@ -1,3 +1,7 @@
+.login-content {
+  margin-top: 0;
+}
+
 .login-return {
   position: fixed;
   top: 12px;

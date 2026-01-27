@@ -50,6 +50,10 @@ app.patch('/v1/account', AccountAPI.updateAccountDetails);
 app.post('/v1/account/avatar', AccountAPI.uploadAvatarPicture);
 // PUT /account/password
 app.put('/v1/account/password', AccountAPI.changePassword);
+// GET /account/logout
+app.get('/v1/account/logout', AccountAPI.logout);
+// GET /account/session
+app.get('/v1/account/session', AccountAPI.getSessions);
 
 // - Products API -
 

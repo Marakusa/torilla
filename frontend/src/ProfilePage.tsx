@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { NavLink, useParams } from "react-router";
 import Header from "./Header";
 import api from "./lib/torillaBackend";
 import './ProfilePage.css';
@@ -8,8 +8,11 @@ import NotFound from "./errors/NotFound";
 import type { MarketItemProps } from "./props/MarketItemProps";
 import Asset from "./market/MarketItem";
 import Footer from "./Footer";
+import { FaPencilAlt } from "react-icons/fa";
+import { useAuth } from "./context/AuthContext";
 
 export default function ProfilePage() {
+  const { user } = useAuth();
   const { username } = useParams<{ username: string }>();
   const [fetching, setFetching] = useState<boolean>(true);
   const [profile, setProfile] = useState<ProfileProps | null>(null);
@@ -67,6 +70,8 @@ export default function ProfilePage() {
           <img src={profile.avatarUrl} alt={profile.displayName?.slice(0, 1) || profile.username?.slice(0, 1) || "?"} className="profile-avatar" />
           <h1>{profile.displayName}</h1>
           <h2><span style={{ userSelect: "none", fontSize: "medium" }}>&gt;</span>{profile.username}</h2>
+          {profile.username === user?.user.username && <NavLink to="/settings" className="button-primary"><FaPencilAlt /> Edit Profile</NavLink>}
+          {profile.username === user?.user.username && <NavLink to="/dashboard" className="button-secondary">Creator Dashboard</NavLink>}
         </div>
         <div>
           <h2>Products</h2>

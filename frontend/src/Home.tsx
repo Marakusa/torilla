@@ -3,8 +3,15 @@ import './App.css'
 import './Home.css'
 import Header from './Header'
 import Footer from "./Footer"
+import { useAuth } from "./context/AuthContext"
 
 function Home() {
+  const { user, loading } = useAuth();
+  
+  if (loading) {
+    return (<></>);
+  }
+
   return (
     <>
       <Header />
@@ -13,7 +20,7 @@ function Home() {
         <p>Discover, buy, and sell digital assets with ease on Torilla.</p>
         <div className="hero-actions">
           <NavLink to="/market" className="button-primary">Explore the Market</NavLink>
-          <NavLink to="/signup" className="button-secondary">Start Selling</NavLink>
+          <NavLink to={user ? "/dashboard" : "/login"} className="button-secondary">Start Selling</NavLink>
         </div>
       </div>
       <Footer />

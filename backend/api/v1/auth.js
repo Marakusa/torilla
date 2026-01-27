@@ -2,8 +2,40 @@ const sdk = require('node-appwrite');
 const argon2 = require('argon2');
 const { databases } = require('../../lib/appwrite');
 var base64 = require('base-64');
-const { validateSession } = require('../../utils/sessionValidator');
 const { v4 } = require('uuid');
+
+const forbiddenUsernames = [
+  "home",
+  "market",
+  "login",
+  "logout",
+  "settings",
+  "account",
+  "dashboard",
+  "about",
+  "legal",
+  "terms",
+  "tos",
+  "privacy",
+  "my",
+  "cart",
+  "notifications",
+  "notification",
+  "post",
+  "posts",
+  "forum",
+  "forums",
+  "search",
+  "api",
+  "admin",
+  "root",
+  "..",
+  ".",
+  "./",
+  "../",
+  "/.",
+  "/..",
+];
 
 async function hashPassword(password) {
   return await argon2.hash(password, {
@@ -53,13 +85,25 @@ exports.login = async function (req, res) {
     const sessionKey = v4();
     const hashedSessionKey = await hashPassword(sessionKey);
 
+    // Get IP address of the client
+    const ipAddress =
+      req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+      || req.socket.remoteAddress
+      || null;
+
+    // Get clients user agent
+    const userAgent = req.headers['user-agent'] || null;
+
     const sessionDocument = await databases.createDocument(
       process.env.APPWRITE_MAIN_DATABASE_ID,
       process.env.APPWRITE_SESSIONS_TABLE_ID,
       sdk.ID.unique(),
       {
         account: account.$id,
-        key: hashedSessionKey
+        key: hashedSessionKey,
+        ipAddress,
+        lastActivity: new Date(),
+        userAgent,
       }
     );
 
@@ -106,6 +150,12 @@ exports.register = async function (req, res) {
       message: "Username must be 3–32 characters and may only contain letters, numbers, . and _"
     });
   }
+  if (forbiddenUsernames.includes(normalizedUsername.trim())) {
+    return res.status(400).json({
+      error: true,
+      message: "Username has already been taken or is forbidden."
+    });
+  }
 
   const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*]).{6,128}$/;
   if (!passwordRegex.test(password)) {
@@ -138,7 +188,7 @@ exports.register = async function (req, res) {
       res.status(400);
       return res.json({
         error: true,
-        message: "Account with the username or email address already exists."
+        message: "Username has already been taken or is forbidden."
       });
     }
 

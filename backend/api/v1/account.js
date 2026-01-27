@@ -2,10 +2,9 @@ const sdk = require('node-appwrite');
 const { InputFile } = require('node-appwrite/file');
 const { databases, storage } = require('../../lib/appwrite');
 var base64 = require('base-64');
-const os = require('os');
 const fs = require('fs');
-const path = require('path');
 const { validateSession } = require('../../utils/sessionValidator');
+const { getBrowserFromUserAgent, howLongAgo, ipToLocation } = require('../../utils/sessionUtils');
 
 exports.getAccount = async function (req, res) {
   try {
@@ -161,6 +160,119 @@ exports.uploadAvatarPicture = async function (req, res) {
   } catch (ex) {
     console.error(ex);
     return res.status(500).json({ error: true, message: "Failed to upload avatar." });
+  }
+}
+
+exports.logout = async function (req, res) {
+  try {
+    const token = req.header("X-Session-Token");
+    if (!token) {
+      return res.status(400).json({
+        error: true,
+        message: "Missing session token."
+      });
+    }
+
+    // Decode base64 token
+    let decoded;
+    try {
+      decoded = JSON.parse(base64.decode(token));
+    } catch (err) {
+      return res.status(401).json({
+        error: true,
+        message: "Invalid session token."
+      });
+    }
+
+    const { sessionId } = decoded;
+
+    // Fetch session document
+    const sessionDoc = await databases.getDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_SESSIONS_TABLE_ID,
+      sessionId
+    );
+
+    // Validate session key
+    const valid = await validateSession(token, sessionDoc.account.$id);
+    if (!valid) {
+      return res.status(401).json({
+        error: true,
+        message: "Invalid session."
+      });
+    }
+
+    // Delete session
+    await databases.deleteDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_SESSIONS_TABLE_ID,
+      sessionId
+    );
+
+    return res.json({
+      success: true
+    });
+  } catch (ex) {
+    console.error(ex);
+
+    // If session already deleted, logout is still effectively successful
+    return res.json({
+      success: false
+    });
+  }
+};
+
+exports.getSessions = async function (req, res) {
+  try {
+    const token = req.header("X-Session-Token");
+    if (!token) return res.status(401).json({ error: true, message: "Missing session token." });
+
+    // Decode base64 token
+    let decoded;
+    try {
+      decoded = JSON.parse(base64.decode(token));
+    } catch (err) {
+      return res.status(401).json({ error: true, message: "Invalid session token." });
+    }
+    const { sessionId } = decoded;
+
+    // Lookup session document
+    const sessionDoc = await databases.getDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_SESSIONS_TABLE_ID,
+      sessionId
+    );
+
+    // Validate session using helper
+    const valid = await validateSession(token, sessionDoc.account.$id);
+    if (!valid) return res.status(401).json({ error: true, message: "Invalid session." });
+
+    const accountId = sessionDoc.account.$id;
+
+    const allSessions = await databases.listDocuments(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_SESSIONS_TABLE_ID,
+      [
+        sdk.Query.equal("account", accountId),
+      ]
+    );
+
+    const sessionList = await Promise.all(
+      allSessions.documents.map(async session => {
+        return {
+          id: session.$id,
+          browser: await getBrowserFromUserAgent(session.userAgent),
+          isSelf: session.$id === sessionDoc.$id,
+          lastActivity: await howLongAgo(session.lastActivity),
+          location: await ipToLocation(session.ipAddress),
+        };
+      })
+    );
+
+    return res.json(sessionList);
+  } catch (ex) {
+    console.error(ex);
+    return res.status(500).json({ error: true, message: "Failed to fetch account user sessions." });
   }
 }
 

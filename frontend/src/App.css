@@ -32,9 +32,9 @@
 }
 
 .button-secondary {
-  background-color: var(--color2);
-  color: var(--color4);
-  border-color: var(--color4);
+  background-color: var(--color4);
+  color: var(--color2);
+  border-color: var(--color2);
 }
 
 .button-secondary:hover {

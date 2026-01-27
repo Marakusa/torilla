@@ -5,12 +5,13 @@ import './LoginPage.css';
 import { NavLink, useNavigate } from "react-router";
 import api from "./lib/torillaBackend";
 import Cookies from 'universal-cookie';
+import { useAuth } from "./context/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const cookies = new Cookies(null, { path: '/' });
+  const { user, loading } = useAuth();
 
   const [showRegister, setShowRegister] = useState(false);
 
@@ -31,8 +32,7 @@ export default function LoginPage() {
 
     try {
       await api.register(username, email, password);
-
-      setInProgress(false);
+      await login(email, password);
     } catch (ex: any) {
       console.error("Failed to register:", ex);
       setError(ex.message);
@@ -53,8 +53,8 @@ export default function LoginPage() {
         password
       );
       cookies.set('X-Session-Token', loginData.xSessionToken);
-      setIsLoggedIn(true);
       setInProgress(false);
+      window.location.reload();
     } catch (ex: any) {
       console.error("Failed to log in:", ex);
       setError(ex.message);
@@ -63,17 +63,12 @@ export default function LoginPage() {
   }
 
   useEffect(() => {
-    api.getAccount().then((account) => {
-      if (account.user) {
-        setIsLoggedIn(true);
-        return;
-      }
-      setIsLoggedIn(false);
-    });
-  }, [cookies]);
+    if (!loading && user?.user) {
+      navigate("/market");
+    }
+  }, [loading, user, navigate]);
 
-  if (isLoggedIn) {
-    navigate("/");
+  if (loading || user?.user) {
     return (<></>);
   }
 
@@ -83,7 +78,7 @@ export default function LoginPage() {
         <div className="login-page">
           <div className="login-panel-left">
             <NavLink to="/" className="login-return"><IoClose /></NavLink>
-            <div className="content">
+            <div className="content login-content">
 
               <div className="login-header">
                 <h1 className="italic">Torilla</h1>
@@ -122,7 +117,7 @@ export default function LoginPage() {
       <>
         <div className="login-page">
           <div className="login-panel-left">
-            <div className="content">
+            <div className="content login-content">
 
               <div className="login-header">
                 <h1 className="italic">Torilla</h1>
@@ -144,7 +139,6 @@ export default function LoginPage() {
               </div>
               <button className="button-primary" onClick={async () => {
                 register(username, email, password);
-                login(email, password);
               }}>Register</button>
 
             </div>
