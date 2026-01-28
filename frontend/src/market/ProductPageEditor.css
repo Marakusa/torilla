@@ -1,4 +1,33 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.editor-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.editor-main-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.editor-description {
+  display: flex;
+  flex-direction: column;
+}
+
 #page-editor-root .ProseMirror-selectednode {
   border: solid 2px var(--color1);
   box-shadow: 0px 4px 10px #00000044;
+}
+
+.product-description-richtext-editor .tiptap {
+  height: 48em;
+  max-height: 48em;
+  overflow-y: scroll;
 }

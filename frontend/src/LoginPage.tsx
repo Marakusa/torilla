@@ -11,7 +11,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const cookies = new Cookies(null, { path: '/' });
-  const { user, loading } = useAuth();
+  const { user, loadingAuth } = useAuth();
 
   const [showRegister, setShowRegister] = useState(false);
 
@@ -63,12 +63,12 @@ export default function LoginPage() {
   }
 
   useEffect(() => {
-    if (!loading && user?.user) {
+    if (!loadingAuth && user?.user) {
       navigate("/market");
     }
-  }, [loading, user, navigate]);
+  }, [loadingAuth, user, navigate]);
 
-  if (loading || user?.user) {
+  if (loadingAuth || user?.user) {
     return (<></>);
   }
 

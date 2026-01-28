@@ -14,13 +14,13 @@ function MenuBar({ editor }: { editor: Editor }) {
   }, [editor]);
   function setLink() {
     if (editorState.lastChainFocus) {
-      editorState.lastChainFocus.toggleLink({ href: linkUrlFieldValue }).run();
+      editorState.lastChainFocus().toggleLink({ href: linkUrlFieldValue }).run();
       setLinkDialog(false);
     }
   }
   function removeLink() {
     if (editorState.lastChainFocus) {
-      editorState.lastChainFocus.unsetLink().run();
+      editorState.lastChainFocus().unsetLink().run();
       setLinkDialog(false);
     }
   }
@@ -37,7 +37,9 @@ function MenuBar({ editor }: { editor: Editor }) {
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (!imageDialog && !linkDialog) return;
+      if (!imageDialog && !linkDialog) {
+        return;
+      }
       const target = e.target as Node | null;
       if (!target) return;
       if ((dialogRef.current && dialogRef.current.contains(target)) || (linkDialogRef.current && linkDialogRef.current.contains(target))) return;
@@ -89,7 +91,7 @@ function MenuBar({ editor }: { editor: Editor }) {
         canUndo: ctx.editor.can().chain().undo().run() ?? false,
         canRedo: ctx.editor.can().chain().redo().run() ?? false,
         isImage: ctx.editor.isActive('image') ?? false,
-        lastChainFocus: ctx.editor.chain().focus() ?? undefined,
+        lastChainFocus: () => ctx.editor.chain().focus(),
       }
     },
   })

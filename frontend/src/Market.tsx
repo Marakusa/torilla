@@ -6,13 +6,17 @@ import api from './lib/torillaBackend'
 import { useEffect, useState } from "react"
 import type { MarketItemProps } from "./props/MarketItemProps"
 import Footer from "./Footer"
+import { useLoadingBar } from "./context/LoadingContext"
 
 function Market() {
+  const { setLoading } = useLoadingBar();
   const [products, setProducts] = useState<MarketItemProps[] | null>(null);
   const [fetchingProducts, setFetchingProducts] = useState<boolean>(false);
   const [fetchedProducts, setFetchedProducts] = useState<boolean>(false);
 
   async function fetchProducts() {
+    setLoading(true);
+
     if (fetchingProducts) {
       return;
     }
@@ -22,6 +26,7 @@ function Market() {
     setProducts(fetchedProducts);
     setFetchingProducts(false);
     setFetchedProducts(true);
+      setLoading(false);
   }
 
   useEffect(() => {

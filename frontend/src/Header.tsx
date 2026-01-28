@@ -3,9 +3,11 @@ import { NavLink } from "react-router";
 import "./Header.css";
 import { FaShoppingCart, FaBell, FaSearch } from "react-icons/fa";
 import { useAuth } from "./context/AuthContext";
+import { useLoadingBar } from "./context/LoadingContext";
 
 function Header() {
-  const { user, loading } = useAuth();
+  const { user, loadingAuth } = useAuth();
+  const { loading } = useLoadingBar();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   function focusSearchBar(event: React.MouseEvent<HTMLDivElement>): void {
@@ -29,7 +31,7 @@ function Header() {
       <nav className="nav-links">
         <a className="nav-a" id="nav-button-cart"><FaShoppingCart /></a>
         <a className="nav-a" id="nav-button-notifications"><FaBell /></a>
-        {!loading && (user ?
+        {!loadingAuth && (user ?
           <div className="nav-profile">
             <p className="nav-a" id="nav-button-profile" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>{user.user.displayName}</p>
             {
@@ -47,6 +49,7 @@ function Header() {
           <NavLink to="/login" className="nav-a" id="nav-button-profile">Log in</NavLink>)}
         <a className="nav-a" id="nav-button-dashboard">Dashboard</a>
       </nav>
+      {loading && <div className="header-loading"></div>}
     </header>
   );
 }

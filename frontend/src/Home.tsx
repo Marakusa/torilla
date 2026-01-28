@@ -6,9 +6,9 @@ import Footer from "./Footer"
 import { useAuth } from "./context/AuthContext"
 
 function Home() {
-  const { user, loading } = useAuth();
+  const { user, loadingAuth } = useAuth();
   
-  if (loading) {
+  if (loadingAuth) {
     return (<></>);
   }
 

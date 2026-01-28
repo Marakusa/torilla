@@ -121,3 +121,24 @@ header {
   border: 0;
   border-bottom: 1px solid var(--color2);
 }
+
+.header-loading {
+  width: 400%;
+  height: 0.8em;
+  background: linear-gradient(to right, var(--color1) 0%, #00000000 25%, var(--color1) 50%, #00000000 75%, var(--color1) 100%);
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%) translateY(50%);
+  animation: header-loading-animation 1s linear infinite;
+  filter: blur(4px);
+}
+
+@keyframes header-loading-animation {
+  0% {
+    transform: translateX(-50%) translateY(50%);
+  }
+
+  100% {
+    transform: translateX(0%) translateY(50%);
+  }
+}

@@ -9,7 +9,7 @@ import { Link } from "react-router";
 import type { SessionData } from "./SessionData";
 
 export default function SettingsPage() {
-  const { user, loading } = useAuth();
+  const { user, loadingAuth } = useAuth();
   const avatarUploadInput = useRef<HTMLInputElement | null>(null);
   const birthDateInput = useRef<HTMLInputElement | null>(null);
 
@@ -74,7 +74,7 @@ export default function SettingsPage() {
   }
 
   useEffect(() => {
-    if (loading) {
+    if (loadingAuth) {
       return;
     }
 
@@ -92,7 +92,7 @@ export default function SettingsPage() {
     if (birthDate && birthDateInput.current) {
       birthDateInput.current.disabled = true;
     }
-  }, [loading, user]);
+  }, [loadingAuth, user]);
 
   useEffect(() => {
     if (sessionListLoading || sessionList.length > 0) {
@@ -115,7 +115,7 @@ export default function SettingsPage() {
     }
   }, [sessionList, setSessionList]);
 
-  if (loading) {
+  if (loadingAuth) {
     return <div>
       <Header />
       <Footer />

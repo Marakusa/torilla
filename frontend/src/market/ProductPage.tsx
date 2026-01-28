@@ -12,25 +12,91 @@ import { currencySymbols } from "../utils/Currencies"
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link';
 import { TextStyleKit } from '@tiptap/extension-text-style'
 import { useEffect, useState } from "react"
 import type { MarketItemProps } from "../props/MarketItemProps"
 import ProductDetailedReviews from "../components/ProductDetailedReviews"
+import { useLoadingBar } from "../context/LoadingContext"
 
-const extensions = [TextStyleKit, StarterKit, Image]
+const extensions = [TextStyleKit, StarterKit, Image, Link.configure({
+  openOnClick: true,
+  autolink: true,
+  defaultProtocol: 'https',
+  protocols: ['http', 'https'],
+  isAllowedUri: (url, ctx) => {
+    try {
+      // construct URL
+      const parsedUrl = url.includes(':') ? new URL(url) : new URL(`${ctx.defaultProtocol}://${url}`)
+
+      // use default validation
+      if (!ctx.defaultValidate(parsedUrl.href)) {
+        return false
+      }
+
+      // disallowed protocols
+      const disallowedProtocols = ['ftp', 'file', 'mailto']
+      const protocol = parsedUrl.protocol.replace(':', '')
+
+      if (disallowedProtocols.includes(protocol)) {
+        return false
+      }
+
+      // only allow protocols specified in ctx.protocols
+      const allowedProtocols = ctx.protocols.map(p => (typeof p === 'string' ? p : p.scheme))
+
+      if (!allowedProtocols.includes(protocol)) {
+        return false
+      }
+
+      // disallowed domains
+      const disallowedDomains = ['example-phishing.com', 'malicious-site.net']
+      const domain = parsedUrl.hostname
+
+      if (disallowedDomains.includes(domain)) {
+        return false
+      }
+
+      // all checks have passed
+      return true
+    } catch {
+      return false
+    }
+  },
+  shouldAutoLink: url => {
+    try {
+      // construct URL
+      const parsedUrl = url.includes(':') ? new URL(url) : new URL(`https://${url}`)
+
+      // only auto-link if the domain is not in the disallowed list
+      const disallowedDomains = ['example-no-autolink.com', 'another-no-autolink.com']
+      const domain = parsedUrl.hostname
+
+      return !disallowedDomains.includes(domain)
+    } catch {
+      return false
+    }
+  },
+}),
+];
 
 function ProductPage() {
+  const { setLoading } = useLoadingBar();
+
   const { vendorName, urlId } = useParams<{ vendorName: string, urlId: string }>();
   const [fetching, setFetching] = useState<boolean>(true);
   const [product, setProduct] = useState<MarketItemProps | null>(null);
 
   useEffect(() => {
+    setLoading(true);
     setFetching(true);
     api.getProductByUrl(vendorName ?? "", urlId ?? "").then((fetchedProduct) => {
       setProduct(fetchedProduct);
       setFetching(false);
+      setLoading(false);
     }).catch(() => {
       setFetching(false);
+      setLoading(false);
     });
   }, [api, vendorName, urlId]);
 

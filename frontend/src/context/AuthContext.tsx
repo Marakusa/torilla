@@ -5,7 +5,7 @@ import Cookies from 'universal-cookie';
 
 interface AuthContextValue {
   user: SessionLoginProps | null;
-  loading: boolean;
+  loadingAuth: boolean;
   refresh: () => Promise<void>;
   logout: () => void;
 }
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, refresh, logout }}>
+    <AuthContext.Provider value={{ user, loadingAuth: loading, refresh, logout }}>
       {children}
     </AuthContext.Provider>
   );
