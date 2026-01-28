@@ -73,8 +73,8 @@ app.get('/v1/products/list/:vendorName', ProductsAPI.getProductsListByName);
 app.get('/v1/products/:id', ProductsAPI.getProductById);
 // GET /products/:vendorName/:shortUrl
 app.get('/v1/products/:vendorName/:shortUrl', ProductsAPI.getProductByUrl);
-// POST /products/:id/description
-app.post('/v1/products/:id/description', ProductsAPI.updateProductDescription);
+// PUT /products/:id/description
+app.put('/v1/products/:id', ProductsAPI.updateProduct);
 
 // - Profiles API -
 

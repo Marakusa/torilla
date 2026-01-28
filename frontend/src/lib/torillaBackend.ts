@@ -5,6 +5,10 @@ import type { SessionLoginProps } from "../props/SessionLoginProps";
 import Cookies from 'universal-cookie';
 import type { SessionData } from "../settings/SessionData";
 
+export function isTorillaApiException(ex: unknown): ex is TorillaApiException {
+  return typeof ex === "object" && ex !== null && "message" in ex;
+}
+
 export interface TorillaApiException {
   message: string;
 }
@@ -71,7 +75,7 @@ const listProducts = async (): Promise<MarketItemProps[]> => await request("GET"
 const listProductsFromUser = async (username: string): Promise<MarketItemProps[]> => await request("GET", "/products/list/" + username);
 const getProductById = async (id: string): Promise<MarketItemProps> => await request("GET", "/products/" + id);
 const getProductByUrl = async (vendor: string, shortUrl: string): Promise<MarketItemProps> => await request("GET", "/products/" + vendor + "/" + shortUrl);
-const updateProductDescription = async (id: string, data: string | null): Promise<MarketItemProps> => await request("POST", "/products/" + id + "/description", data ?? "{}");
+const updateProduct = async (id: string, data: MarketItemProps): Promise<MarketItemProps> => await request("PUT", "/products/" + id, JSON.stringify(data) ?? "{}");
 
 const api = {
   getProfile,
@@ -87,7 +91,7 @@ const api = {
   listProductsFromUser,
   getProductById,
   getProductByUrl,
-  updateProductDescription
+  updateProduct
 };
 
 export default api;

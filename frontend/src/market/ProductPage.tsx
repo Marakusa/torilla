@@ -2,7 +2,7 @@ import api from '../lib/torillaBackend'
 import '../App.css'
 import './ProductPage.css'
 import Header from '../Header'
-import { useParams } from "react-router"
+import { NavLink, useParams } from "react-router"
 import NotFound from "../errors/NotFound"
 import ImageCarousel from "../components/ImageCarousel"
 import ProfileLink from "../components/ProfileLink"
@@ -18,6 +18,8 @@ import { useEffect, useState } from "react"
 import type { MarketItemProps } from "../props/MarketItemProps"
 import ProductDetailedReviews from "../components/ProductDetailedReviews"
 import { useLoadingBar } from "../context/LoadingContext"
+import { useAuth } from "../context/AuthContext"
+import { FaPen } from "react-icons/fa"
 
 const extensions = [TextStyleKit, StarterKit, Image, Link.configure({
   openOnClick: true,
@@ -81,6 +83,7 @@ const extensions = [TextStyleKit, StarterKit, Image, Link.configure({
 ];
 
 function ProductPage() {
+  const { user, loadingAuth } = useAuth();
   const { setLoading } = useLoadingBar();
 
   const { vendorName, urlId } = useParams<{ vendorName: string, urlId: string }>();
@@ -164,6 +167,7 @@ function ProductPage() {
           </div>
 
           <div className="product-right-content">
+            {user?.user?.$id === product.vendor.$id && <NavLink to="edit" className="button-secondary" style={{ display: "flex", gap: "6px", alignItems: "center", justifyContent: "center" }}><FaPen /> Edit Product </NavLink>}
             <div className="product-purchase">
               <div className="product-purchase-box">
                 <p className="product-price">

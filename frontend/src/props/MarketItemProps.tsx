@@ -21,9 +21,10 @@ interface MarketItemProps {
 }
 
 interface AssetVersion {
+  $id: string,
   name?: string;
   price?: number;
   currency?: string;
 }
 
-export type { MarketItemProps };
+export type { MarketItemProps, AssetVersion };

@@ -254,27 +254,68 @@ exports.getProductByUrl = async function (req, res) {
   }
 }
 
-exports.updateProductDescription = async function (req, res) {
+exports.updateProduct = async function (req, res) {
   try {
     const body = req.body;
 
-    const document = await databases.getDocument(
+    const product = await databases.getDocument(
       process.env.APPWRITE_MAIN_DATABASE_ID,
       process.env.APPWRITE_PRODUCTS_TABLE_ID,
       req.params.id
     );
 
-    if (!(await validateSession(req.header("X-Session-Token"), document.vendor.$id))) {
+    const accountResult = await databases.listDocuments(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_ACCOUNTS_TABLE_ID,
+      [
+        sdk.Query.equal("profile", product.vendor.$id),
+        sdk.Query.limit(1)
+      ],
+    );
+
+    if (accountResult.total === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Account not found."
+      });
+    }
+
+    const account = accountResult.documents[0];
+
+    if (!(await validateSession(req.header("X-Session-Token"), account.$id))) {
       return res.status(401).json({ error: true });
+    }
+
+    const newProduct = {
+      shortUrl: body.shortUrl ?? product.shortUrl,
+      title: body.title ?? product.title,
+      iconUrl: body.iconUrl ?? product.iconUrl,
+      description: body.description ?? product.description,
+      tags: body.tags ?? product.tags,
+      thumbnails: body.thumbnails ?? product.thumbnails,
+      versions: body.versions ?? product.versions,
+    }
+
+    const shortUrlMatches = await databases.listDocuments(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_PRODUCTS_TABLE_ID,
+      [
+        sdk.Query.and([
+          sdk.Query.equal("shortUrl", newProduct.shortUrl),
+          sdk.Query.notEqual("$id", product.$id),
+        ]),
+      ]
+    );
+
+    if (shortUrlMatches.total > 0) {
+      return res.status(400).json({ error: true, message: "Short URL already in use." });
     }
 
     const updatedDocument = await databases.updateDocument(
       process.env.APPWRITE_MAIN_DATABASE_ID,
       process.env.APPWRITE_PRODUCTS_TABLE_ID,
       req.params.id,
-      {
-        description: JSON.stringify(body)
-      }
+      newProduct,
     );
 
     const mapped = await mapProduct(updatedDocument);
