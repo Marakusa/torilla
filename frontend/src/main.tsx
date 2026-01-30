@@ -13,6 +13,10 @@ import { AuthProvider } from "./context/AuthContext";
 import ProfilePage from "./ProfilePage";
 import SettingsPage from "./settings/SettingsPage";
 import { LoadingBarProvider } from "./context/LoadingContext";
+import Dashboard from "./dashboard/Dashboard";
+import DashboardNotFound from "./errors/DashboardNotFound";
+import DashboardMain from "./dashboard/DashboardMain";
+import DashboardProducts from "./dashboard/DashboardProducts";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -31,6 +35,12 @@ createRoot(document.getElementById('root')!).render(
 
             <Route path=":vendorName/:urlId" element={<ProductPage />} />
             <Route path=":vendorName/:urlId/edit" element={<ProductPageEditor />} />
+
+            <Route path="dashboard" element={<Dashboard />}>
+              <Route index element={<DashboardMain />} />
+              <Route path="products" element={<DashboardProducts />} />
+              <Route path="*" element={<DashboardNotFound />} />
+            </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>

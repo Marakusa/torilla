@@ -83,7 +83,7 @@ const extensions = [TextStyleKit, StarterKit, Image, Link.configure({
 ];
 
 function ProductPage() {
-  const { user, loadingAuth } = useAuth();
+  const { user } = useAuth();
   const { setLoading } = useLoadingBar();
 
   const { vendorName, urlId } = useParams<{ vendorName: string, urlId: string }>();

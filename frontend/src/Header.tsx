@@ -47,7 +47,7 @@ function Header() {
             }
           </div> :
           <NavLink to="/login" className="nav-a" id="nav-button-profile">Log in</NavLink>)}
-        <a className="nav-a" id="nav-button-dashboard">Dashboard</a>
+        <NavLink to="/dashboard" className="nav-a" id="nav-button-dashboard">Dashboard</NavLink>
       </nav>
       {loading && <div className="header-loading"></div>}
     </header>

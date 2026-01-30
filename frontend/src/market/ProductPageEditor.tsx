@@ -201,7 +201,7 @@ function ProductPageEditor() {
 
       <Toaster />
 
-      <div className="content" id="page-editor-root">
+      <div className="content editor-content" id="page-editor-root">
         <div className="editor-toolbar">
           <button onClick={() => {
             handleSave();
