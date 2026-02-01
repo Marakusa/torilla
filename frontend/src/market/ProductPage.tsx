@@ -90,6 +90,8 @@ function ProductPage() {
   const [fetching, setFetching] = useState<boolean>(true);
   const [product, setProduct] = useState<MarketItemProps | null>(null);
 
+  const [selectedVersionIndex, setSelectedVersionIndex] = useState(0);
+
   useEffect(() => {
     setLoading(true);
     setFetching(true);
@@ -141,8 +143,6 @@ function ProductPage() {
       <NotFound />
     </>);
 
-  const priceNumber: number = (product.versions[0]?.price ?? 0);
-
   return (
     <>
       <Header />
@@ -169,14 +169,42 @@ function ProductPage() {
           <div className="product-right-content">
             {user?.user?.$id === product.vendor.$id && <NavLink to="edit" className="button-secondary" style={{ display: "flex", gap: "6px", alignItems: "center", justifyContent: "center" }}><FaPen /> Edit Product </NavLink>}
             <div className="product-purchase">
-              <div className="product-purchase-box">
-                <p className="product-price">
-                  {
-                    priceNumber === 0 ? "FREE" : `${currencySymbols[product.versions[0]?.currency ?? 'USD']}${priceNumber.toFixed(2)}`
-                  }
-                </p>
-                <button className="button-primary">Buy Now</button>
-              </div>
+              {
+                product.versions.length > 1 ?
+                  <div className="product-purchase-box-multi">
+                    {
+                      product.versions.map((version, index) =>
+                        <button key={version.$id} className={`product-version ${selectedVersionIndex === index ? "button-primary product-version-selected" : "button-secondary"}`} onClick={() => setSelectedVersionIndex(index)}>
+                          <p className="product-version-title"><span className="product-version-price">{(version.price ?? 0) === 0 ? "FREE" : `${currencySymbols[version.currency ?? 'USD']}${(version.price ?? 0).toFixed(2)}`}</span>{version.name}</p>
+                          {
+                            version.features.length > 0 && <ul>
+                              {
+                                version.features.map((feature) => <li>{feature}</li>)
+                              }
+                            </ul>
+                          }
+                        </button>
+                      )
+                    }
+                    <button className="button-primary">Buy Now</button>
+                  </div>
+                  :
+                  <div className="product-purchase-box">
+                    <p className="product-price">
+                      {
+                        (product.versions[0]?.price ?? 0) === 0 ? "FREE" : `${currencySymbols[product.versions[0]?.currency ?? 'USD']}${(product.versions[0]?.price ?? 0).toFixed(2)}`
+                      }
+                    </p>
+                    {
+                      product.versions[0]?.features.length > 0 && <ul>
+                        {
+                          product.versions[0]?.features.map((feature) => <li>{feature}</li>)
+                        }
+                      </ul>
+                    }
+                    <button className="button-primary">Buy Now</button>
+                  </div>
+              }
             </div>
 
             <ProductDetailedReviews product={product} />

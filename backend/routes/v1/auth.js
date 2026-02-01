@@ -1,3 +1,5 @@
+const express = require('express');
+const router = express.Router();
 const sdk = require('node-appwrite');
 const argon2 = require('argon2');
 const { databases } = require('../../lib/appwrite');
@@ -46,7 +48,7 @@ async function hashPassword(password) {
   });
 }
 
-exports.login = async function (req, res) {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -125,9 +127,9 @@ exports.login = async function (req, res) {
       message: "Failed to login."
     });
   }
-}
+});
 
-exports.register = async function (req, res) {
+router.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
     return res.status(400).json({
@@ -233,4 +235,6 @@ exports.register = async function (req, res) {
       message: "Failed to create account."
     });
   }
-}
+});
+
+module.exports = router;

@@ -203,6 +203,7 @@ function ProductPageEditor() {
 
       <div className="content editor-content" id="page-editor-root">
         <div className="editor-toolbar">
+          <h2>{product.title}</h2>
           <button onClick={() => {
             handleSave();
             navigate(`${window.location.protocol}//${window.location.host}/${product.vendor.username}/${product.shortUrl}`);
@@ -304,6 +305,80 @@ function ProductPageEditor() {
                         });
                       }} />
                     </div>
+
+                    <div className="editor-main-item">
+                      <label>Features</label>
+
+                      {(version.features ?? []).map((feature, index) => (
+                        <div key={index} className="editor-feature-row">
+                          <input
+                            type="text"
+                            className="text-field"
+                            value={feature}
+                            onChange={(e) => {
+                              const newValue = e.target.value;
+
+                              setProduct(prevProduct => {
+                                if (!prevProduct) return prevProduct;
+
+                                const newVersions = prevProduct.versions.map(v => {
+                                  if (v.$id !== version.$id) return v;
+
+                                  const newFeatures = [...v.features];
+                                  newFeatures[index] = newValue;
+
+                                  return { ...v, features: newFeatures };
+                                });
+
+                                return { ...prevProduct, versions: newVersions };
+                              });
+                            }}
+                          />
+
+                          <button
+                            className="button-secondary"
+                            onClick={() => {
+                              setProduct(prevProduct => {
+                                if (!prevProduct) return prevProduct;
+
+                                const newVersions = prevProduct.versions.map(v => {
+                                  if (v.$id !== version.$id) return v;
+
+                                  return {
+                                    ...v,
+                                    features: v.features.filter((_, i) => i !== index),
+                                  };
+                                });
+
+                                return { ...prevProduct, versions: newVersions };
+                              });
+                            }}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      ))}
+
+                      <button
+                        className="button-secondary"
+                        onClick={() => {
+                          setProduct(prevProduct => {
+                            if (!prevProduct) return prevProduct;
+
+                            const newVersions = prevProduct.versions.map(v =>
+                              v.$id === version.$id
+                                ? { ...v, features: [...v.features, ""] }
+                                : v
+                            );
+
+                            return { ...prevProduct, versions: newVersions };
+                          });
+                        }}
+                      >
+                        + Add Feature
+                      </button>
+
+                    </div>
                   </div>;
                 })
               }
@@ -313,7 +388,8 @@ function ProductPageEditor() {
                   $id: "new_" + nextVersionId,
                   name: "",
                   currency: "USD",
-                  price: 0
+                  price: 0,
+                  features: [],
                 };
                 setNextVersionId(nextVersionId + 1);
                 setProduct(prevProduct => prevProduct ? {

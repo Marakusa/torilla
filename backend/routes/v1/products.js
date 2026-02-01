@@ -1,3 +1,5 @@
+const express = require('express');
+const router = express.Router();
 const sdk = require('node-appwrite');
 const { databases } = require('../../lib/appwrite');
 const { validateSession } = require('../../utils/sessionValidator');
@@ -105,12 +107,13 @@ async function mapProduct(doc) {
         name: v.name,
         price: v.price,
         currency: v.currency,
+        features: v.features ?? [],
       })) ?? [],
     productReviews: reviews,
   };
 }
 
-exports.getProductsList = async function (req, res) {
+router.get('/list', async (req, res) => {
   const { limit = 25, offset = 0 } = req.query;
 
   const safeLimit = Math.min(Number(limit) || 25, 100);
@@ -135,9 +138,9 @@ exports.getProductsList = async function (req, res) {
       message: "Failed to fetch products."
     });
   }
-}
+});
 
-exports.getProductsListByName = async function (req, res) {
+router.get('/list/:vendorName', async (req, res) => {
   const { vendorName } = req.params;
   const { limit = 25, offset = 0 } = req.query;
 
@@ -173,9 +176,9 @@ exports.getProductsListByName = async function (req, res) {
       message: "Failed to fetch products."
     });
   }
-}
+});
 
-exports.getProductById = async function (req, res) {
+router.get('/:id', async (req, res) => {
   try {
     const document = await databases.getDocument(
       process.env.APPWRITE_MAIN_DATABASE_ID,
@@ -198,9 +201,9 @@ exports.getProductById = async function (req, res) {
       message: "Failed to fetch the product."
     });
   }
-}
+});
 
-exports.getProductByUrl = async function (req, res) {
+router.get('/:vendorName/:shortUrl', async (req, res) => {
   const { vendorName, shortUrl } = req.params;
 
   if (!vendorName || !shortUrl) {
@@ -252,9 +255,9 @@ exports.getProductByUrl = async function (req, res) {
       message: "Failed to fetch the product."
     });
   }
-}
+});
 
-exports.updateProduct = async function (req, res) {
+router.put('/:id', async (req, res) => {
   try {
     const body = req.body;
 
@@ -296,6 +299,8 @@ exports.updateProduct = async function (req, res) {
       versions: body.versions ?? product.versions,
     }
 
+    // Check if unique URL for vendor
+
     const shortUrlMatches = await databases.listDocuments(
       process.env.APPWRITE_MAIN_DATABASE_ID,
       process.env.APPWRITE_PRODUCTS_TABLE_ID,
@@ -309,6 +314,24 @@ exports.updateProduct = async function (req, res) {
 
     if (shortUrlMatches.total > 0) {
       return res.status(400).json({ error: true, message: "Short URL already in use." });
+    }
+
+    // Check for new product versions
+
+    for (const element of newProduct.versions.filter(v => v.$id.startsWith('new_'))) {
+      const newVersion = await databases.createDocument(
+        process.env.APPWRITE_MAIN_DATABASE_ID,
+        process.env.APPWRITE_PRODUCT_VERSIONS_TABLE_ID,
+        sdk.ID.unique(),
+        {
+          name: element.name,
+          currency: element.currency,
+          price: element.price,
+          features: element.features,
+        }
+      );
+
+      element.$id = newVersion.$id;
     }
 
     const updatedDocument = await databases.updateDocument(
@@ -330,4 +353,6 @@ exports.updateProduct = async function (req, res) {
       message: "Failed to update the description of the product."
     });
   }
-}
+});
+
+module.exports = router;

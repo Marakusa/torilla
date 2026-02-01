@@ -1,3 +1,5 @@
+const express = require('express');
+const router = express.Router();
 const sdk = require('node-appwrite');
 const { InputFile } = require('node-appwrite/file');
 const { databases, storage } = require('../../lib/appwrite');
@@ -6,7 +8,7 @@ const fs = require('fs');
 const { validateSession } = require('../../utils/sessionValidator');
 const { getBrowserFromUserAgent, howLongAgo, ipToLocation } = require('../../utils/sessionUtils');
 
-exports.getAccount = async function (req, res) {
+router.get('/', async (req, res) => {
   try {
     const token = req.header("X-Session-Token");
 
@@ -69,9 +71,13 @@ exports.getAccount = async function (req, res) {
       message: "Failed to fetch account data."
     });
   }
-}
+});
 
-exports.uploadAvatarPicture = async function (req, res) {
+router.patch('/', async (req, res) => {
+
+});
+
+router.post('/avatar', async (req, res) => {
   try {
     const token = req.header("X-Session-Token");
     if (!token) return res.status(401).json({ error: true, message: "Missing session token." });
@@ -161,9 +167,9 @@ exports.uploadAvatarPicture = async function (req, res) {
     console.error(ex);
     return res.status(500).json({ error: true, message: "Failed to upload avatar." });
   }
-}
+});
 
-exports.logout = async function (req, res) {
+router.get('/logout', async (req, res) => {
   try {
     const token = req.header("X-Session-Token");
     if (!token) {
@@ -220,9 +226,9 @@ exports.logout = async function (req, res) {
       success: false
     });
   }
-};
+});
 
-exports.getSessions = async function (req, res) {
+router.get('/session', async (req, res) => {
   try {
     const token = req.header("X-Session-Token");
     if (!token) return res.status(401).json({ error: true, message: "Missing session token." });
@@ -274,12 +280,10 @@ exports.getSessions = async function (req, res) {
     console.error(ex);
     return res.status(500).json({ error: true, message: "Failed to fetch account user sessions." });
   }
-}
+});
 
-exports.updateAccountDetails = async function (req, res) {
+router.put('/password', async (req, res) => {
 
-}
+});
 
-exports.changePassword = async function (req, res) {
-
-}
+module.exports = router;

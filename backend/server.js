@@ -3,6 +3,15 @@ const express = require('express');
 const cors = require('cors');
 const os = require('os');
 const fileUpload = require('express-fileupload');
+
+const apiRoutes = require('./routes/index');
+const apiRoutesVersion1 = require('./routes/v1/index');
+
+const authRoutes = require('./routes/v1/auth');
+const accountRoutes = require('./routes/v1/accounts');
+const productRoutes = require('./routes/v1/products');
+const profileRoutes = require('./routes/v1/profiles');
+
 const app = express();
 const port = process.env.PORT;
 
@@ -28,58 +37,14 @@ app.use(fileUpload({
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB
 }));
 
-const AuthAPI = require('./api/v1/auth');
-const AccountAPI = require('./api/v1/account');
-const ProductsAPI = require('./api/v1/products');
-const ProfilesAPI = require('./api/v1/profiles');
+// Routes
+app.use('/', apiRoutes);
+app.use('/v1', apiRoutesVersion1);
 
-// - Main -
-app.get('/', (req, res) => {
-  res.send('Use /v1 to access the v1 API');
-});
-app.get('/v1', (req, res) => {
-  res.send('Torilla API v1');
-});
-
-// - Auth API -
-
-// POST /auth/login
-app.post('/v1/auth/login', AuthAPI.login);
-// POST /auth/register
-app.post('/v1/auth/register', AuthAPI.register);
-
-// - Account API -
-
-// GET /account
-app.get('/v1/account', AccountAPI.getAccount);
-// PATCH /account
-app.patch('/v1/account', AccountAPI.updateAccountDetails);
-// POST /account/avatar
-app.post('/v1/account/avatar', AccountAPI.uploadAvatarPicture);
-// PUT /account/password
-app.put('/v1/account/password', AccountAPI.changePassword);
-// GET /account/logout
-app.get('/v1/account/logout', AccountAPI.logout);
-// GET /account/session
-app.get('/v1/account/session', AccountAPI.getSessions);
-
-// - Products API -
-
-// GET /products/list
-app.get('/v1/products/list', ProductsAPI.getProductsList);
-// GET /products/list/:vendorName
-app.get('/v1/products/list/:vendorName', ProductsAPI.getProductsListByName);
-// GET /products/:id
-app.get('/v1/products/:id', ProductsAPI.getProductById);
-// GET /products/:vendorName/:shortUrl
-app.get('/v1/products/:vendorName/:shortUrl', ProductsAPI.getProductByUrl);
-// PUT /products/:id/description
-app.put('/v1/products/:id', ProductsAPI.updateProduct);
-
-// - Profiles API -
-
-// GET /profiles/:username
-app.get('/v1/profiles/:username', ProfilesAPI.getProfileByUsername);
+app.use('/v1/auth', authRoutes);
+app.use('/v1/accounts', accountRoutes);
+app.use('/v1/products', productRoutes);
+app.use('/v1/profiles', profileRoutes);
 
 // Start server
 app.listen(port, () => {

@@ -25,6 +25,7 @@ interface AssetVersion {
   name?: string;
   price?: number;
   currency?: string;
+  features: string[];
 }
 
 export type { MarketItemProps, AssetVersion };

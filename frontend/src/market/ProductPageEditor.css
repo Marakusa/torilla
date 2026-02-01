@@ -2,12 +2,15 @@
   display: flex;
   flex-direction: column;
   gap: 2em;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 .editor-main {
   display: flex;
   flex-direction: column;
   gap: 2em;
+  margin-top: 14em;
 }
 
 .editor-main-item {
@@ -61,6 +64,41 @@
 .editor-toolbar {
   display: flex;
   flex-direction: row;
+  align-items: center;
   gap: 0.25em;
-  justify-content: end;
+  justify-content: stretch;
+  position: fixed;
+  left: 0;
+  right: 0;
+  background-color: var(--color2);
+  padding: 2em;
+  margin-top: 68px;
+  border-bottom: 1px solid var(--color4);
+  z-index: 30;
+}
+
+.editor-toolbar h2 {
+  margin: 0;
+  width: 100%;
+}
+
+.editor-toolbar button {
+  flex-shrink: 0;
+}
+
+.editor-feature-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 0.25em;
+}
+
+.editor-feature-row input {
+  width: 100%;
+}
+
+.button-group button {
+  transform: translateX(0) translateY(0);
+  border: 0;
+  box-shadow: none;
 }

@@ -63,13 +63,13 @@ async function uploadFileRequest(endpoint: string, file: File | Blob): Promise<a
 };
 
 const getProfile = async (username: string): Promise<ProfileProps> => await request("GET", "/profiles/" + username);
-const getAccount = async (): Promise<SessionLoginProps> => await request("GET", "/account");
-const patchAccount = async () => await request("PATCH", "/account");
-const uploadAccountAvatar = async (file: File | Blob) => await uploadFileRequest("/account/avatar", file);
-const changePassword = async () => await request("PUT", "/account/password");
-const getAllSessions = async (): Promise<SessionData[]> => await request("GET", "/account/session");
+const getAccount = async (): Promise<SessionLoginProps> => await request("GET", "/accounts");
+const patchAccount = async () => await request("PATCH", "/accounts");
+const uploadAccountAvatar = async (file: File | Blob) => await uploadFileRequest("/accounts/avatar", file);
+const changePassword = async () => await request("PUT", "/accounts/password");
+const getAllSessions = async (): Promise<SessionData[]> => await request("GET", "/accounts/session");
 const login = async (email: string, password: string): Promise<SessionLoginProps> => await request("POST", "/auth/login", JSON.stringify({ email: email, password: password }));
-const logout = async () => await request("GET", "/account/logout");
+const logout = async () => await request("GET", "/accounts/logout");
 const register = async (username: string, email: string, password: string) => await request("POST", "/auth/register", JSON.stringify({ username: username, email: email, password: password }));
 const listProducts = async (): Promise<MarketItemProps[]> => await request("GET", "/products/list");
 const listProductsFromUser = async (username: string): Promise<MarketItemProps[]> => await request("GET", "/products/list/" + username);

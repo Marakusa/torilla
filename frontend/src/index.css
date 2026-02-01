@@ -105,7 +105,8 @@ button {
   color: var(--color2);
   border-color: var(--color2);
   border: solid 1px;
-  border-bottom-width: 1px;
+  box-shadow: 3px 3px 0px var(--color4);
+  transform: translateX(-3px) translateY(-3px);
 }
 
 button:hover {

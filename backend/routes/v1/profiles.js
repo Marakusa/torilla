@@ -1,3 +1,5 @@
+const express = require('express');
+const router = express.Router();
 const sdk = require('node-appwrite');
 const { databases } = require('../../lib/appwrite');
 
@@ -13,7 +15,7 @@ function mapProfile(accountDoc, profileDoc) {
   };
 }
 
-exports.getProfileByUsername = async function (req, res) {
+router.get('/:username', async (req, res) => {
   const { username } = req.params;
 
   if (!username) {
@@ -56,4 +58,6 @@ exports.getProfileByUsername = async function (req, res) {
       message: "Failed to fetch profile."
     });
   }
-};
+});
+
+module.exports = router;
