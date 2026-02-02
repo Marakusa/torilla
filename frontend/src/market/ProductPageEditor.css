@@ -8,9 +8,24 @@
 
 .editor-main {
   display: flex;
+  flex-direction: row;
+  gap: 2em;
+}
+
+.editor-main-left,
+.editor-main-right {
+  display: flex;
   flex-direction: column;
   gap: 2em;
   margin-top: 14em;
+}
+
+.editor-main-left {
+  width: 75%;
+}
+
+.editor-main-right {
+  width: 25%;
 }
 
 .editor-main-item {
@@ -97,8 +112,74 @@
   width: 100%;
 }
 
+.button-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 .button-group button {
   transform: translateX(0) translateY(0);
   border: 0;
   box-shadow: none;
+}
+
+.editor-thumbnails {
+  display: flex;
+  flex: row;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  padding: 0.5em;
+  background-color: var(--color4);
+}
+
+.editor-thumbnail {
+  display: inherit;
+  cursor: move;
+}
+
+.editor-thumbnail video {
+  border-radius: 6px;
+}
+
+.editor-thumbnail .play-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 6px;
+  border-radius: 50%;
+  box-shadow: none;
+  background-color: #00000044;
+  color: white;
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translateX(50%) translateY(-50%);
+  z-index: 20;
+}
+
+.editor-thumbnail-delete {
+  display: none;
+}
+
+.editor-thumbnail {
+  position: relative;
+}
+
+.editor-thumbnail:hover .editor-thumbnail-delete,
+.editor-thumbnail-delete:hover,
+.editor-thumbnail-delete:active {
+  display: unset;
+  width: 32px;
+  height: 32px;
+  padding: 7px;
+  border-radius: 50%;
+  box-shadow: none;
+  transform: none;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  z-index: 20;
 }

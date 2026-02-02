@@ -6,13 +6,21 @@
 }
 
 .button-primary,
-.button-secondary {
+.button-secondary,
+.button-iconed {
   border: solid 1px;
   padding: 0.8em 1.6em;
   display: inline-block;
   text-decoration: none;
   box-shadow: 3px 3px 0px var(--color4);
   transform: translateX(-3px) translateY(-3px);
+}
+
+.button-iconed {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
 }
 
 .button-primary:hover,

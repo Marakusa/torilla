@@ -167,7 +167,7 @@ function ProductPage() {
           </div>
 
           <div className="product-right-content">
-            {user?.user?.$id === product.vendor.$id && <NavLink to="edit" className="button-secondary" style={{ display: "flex", gap: "6px", alignItems: "center", justifyContent: "center" }}><FaPen /> Edit Product </NavLink>}
+            {user?.user?.$id === product.vendor.$id && <NavLink to="edit" className="button-secondary button-iconed"><FaPen /> Edit Product </NavLink>}
             <div className="product-purchase">
               {
                 product.versions.length > 1 ?
