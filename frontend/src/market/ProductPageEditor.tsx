@@ -266,6 +266,128 @@ function ProductPageEditor() {
     }
   }
 
+  function thumbnailOnMouseDown(e: React.MouseEvent<HTMLDivElement>): void {
+    e.preventDefault();
+
+    if (e.target !== e.currentTarget.firstChild as HTMLImageElement) return;
+
+    const target = e.currentTarget as HTMLDivElement;
+    const parent = target.parentElement as HTMLElement;
+    if (!parent) return;
+
+    const children = Array.from(parent.querySelectorAll('.editor-thumbnail')) as HTMLDivElement[];
+    const startIndex = children.indexOf(target);
+    if (startIndex === -1) return;
+
+    const rect = target.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+
+    // create visual clone that follows the cursor
+    const clone = target.cloneNode(true) as HTMLDivElement;
+    clone.style.position = 'fixed';
+    clone.style.left = `${rect.left}px`;
+    clone.style.top = `${rect.top}px`;
+    clone.style.width = `${rect.width}px`;
+    clone.style.height = `${rect.height}px`;
+    clone.style.pointerEvents = 'none';
+    clone.style.zIndex = '10000';
+    clone.style.opacity = '0.9';
+    document.body.appendChild(clone);
+
+    // Vertical drop indicator
+    const dropIndicator = document.createElement('div');
+    dropIndicator.className = 'thumbnail-drop-indicator';
+    document.body.appendChild(dropIndicator);
+
+    // placeholder in the list
+    const placeholder = document.createElement('div');
+    placeholder.className = 'thumbnail-placeholder';
+    placeholder.style.width = `${rect.width}px`;
+    placeholder.style.height = `${rect.height}px`;
+    placeholder.style.display = getComputedStyle(target).display;
+    placeholder.style.verticalAlign = getComputedStyle(target).verticalAlign;
+    parent.insertBefore(placeholder, target);
+
+    // hide original while dragging
+    target.style.visibility = 'hidden';
+    target.style.width = '0px';
+
+    function onMouseMove(ev: MouseEvent): void {
+      clone.style.left = `${ev.clientX - offsetX}px`;
+      clone.style.top = `${ev.clientY - offsetY}px`;
+      
+      // Display vertical line indicating drop position
+      let dropIndex = findDropIndex(ev.clientX, ev.clientY);
+      if (dropIndex >= startIndex) {
+        dropIndex += 1; // account for placeholder removal
+      }
+      const kids = Array.from(parent.children).filter(c => c !== placeholder) as HTMLElement[];
+      if (kids.length === 0) {
+        dropIndicator.style.left = `${parent.getBoundingClientRect().left}px`;
+        dropIndicator.style.top = `${parent.getBoundingClientRect().top + parent.getBoundingClientRect().height / 2}px`;
+      } else if (dropIndex >= kids.length) {
+        const lastKidRect = kids[kids.length - 1].getBoundingClientRect();
+        dropIndicator.style.left = `${lastKidRect.right}px`;
+        dropIndicator.style.top = `${lastKidRect.top + lastKidRect.height / 2}px`;
+      } else {
+        const kidRect = kids[dropIndex].getBoundingClientRect();
+        dropIndicator.style.left = `${kidRect.left}px`;
+        dropIndicator.style.top = `${kidRect.top + kidRect.height / 2}px`;
+      }
+    }
+
+    function findDropIndex(clientX: number, clientY: number): number {
+      const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
+      if (!el) return startIndex;
+      // find nearest .editor-thumbnail inside the same parent (ignore placeholder)
+      let node: HTMLElement | null = el;
+      while (node && node !== parent) {
+        if (node.classList && node.classList.contains('editor-thumbnail')) {
+          return Array.from(parent.querySelectorAll('.editor-thumbnail')).indexOf(node as HTMLDivElement);
+        }
+        node = node.parentElement;
+      }
+      // if over parent but not over a child, attempt to determine by x position
+      const kids = Array.from(parent.children).filter(c => c !== placeholder) as HTMLElement[];
+      for (let i = 0; i < kids.length; i++) {
+        const r = kids[i].getBoundingClientRect();
+        if (clientX < r.left + r.width / 2) return i;
+      }
+      return kids.length - 1;
+    }
+
+    function onMouseUp(ev: MouseEvent): void {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+
+      dropIndicator.remove();
+
+      const dropIndex = findDropIndex(ev.clientX, ev.clientY);
+
+      // cleanup visuals
+      clone.remove();
+      placeholder.remove();
+      target.style.visibility = '';
+      target.style.width = '';
+
+      // reorder state if changed
+      if (dropIndex !== startIndex) {
+        setThumbnails(prev => {
+          const arr = [...prev];
+          const [item] = arr.splice(startIndex, 1);
+          // clamp dropIndex to valid range after removal
+          const insertAt = Math.max(0, Math.min(dropIndex, arr.length));
+          arr.splice(insertAt, 0, item);
+          return arr;
+        });
+      }
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }
+
   return (
     <>
       <Header />
@@ -315,7 +437,7 @@ function ProductPageEditor() {
 
               <div className="editor-thumbnails">
                 {thumbnails.map((thumbnail, index) =>
-                  <div key={index} className="editor-thumbnail">
+                  <div key={index} className="editor-thumbnail" onMouseDown={thumbnailOnMouseDown}>
                     {thumbnail.video ? (
                       <>
                         <video src={thumbnail.url} height={92} muted playsInline loop preload="metadata"></video>

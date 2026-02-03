@@ -128,14 +128,16 @@
   display: flex;
   flex: row;
   flex-wrap: wrap;
-  gap: 0.5em;
-  padding: 0.5em;
+  padding: 0.5em 0 0 0.5em;
   background-color: var(--color4);
+  min-height: 100px;
 }
 
 .editor-thumbnail {
   display: inherit;
   cursor: move;
+  margin-right: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 .editor-thumbnail video {
@@ -182,4 +184,15 @@
   top: 3px;
   right: 3px;
   z-index: 20;
+}
+
+.thumbnail-drop-indicator {
+  position: fixed;
+  width: 0px;
+  height: 96px;
+  border: 2px solid var(--color1);
+  border-radius: 4px;
+  top: 50%;
+  transform: translateX(-150%) translateY(-50%);
+  z-index: 1000;
 }
