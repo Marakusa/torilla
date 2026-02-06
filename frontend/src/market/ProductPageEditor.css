@@ -224,3 +224,36 @@
     transform: rotate(360deg);
   }
 }
+
+.dashboard-products-table {
+  width: 100%;
+  border: 1px solid var(--color4);
+  border-radius: 8px;
+}
+
+.dashboard-products-table thead tr {
+  border-bottom: 1px solid var(--color4);
+}
+
+.dashboard-products-table th,
+.dashboard-products-table td {
+  padding: 0.5em;
+  text-align: left;
+}
+
+.dashboard-products-table th {
+  border-top: none;
+}
+
+.dashboard-products-table tbody tr:hover {
+  background-color: var(--color3);
+  cursor: pointer;
+}
+
+.dashboard-products-table td:first-child,
+.dashboard-products-table th:first-child {
+  border-left: none;
+  width: 64px;
+  height: 64px;
+  padding: 6px 6px 0;
+}
