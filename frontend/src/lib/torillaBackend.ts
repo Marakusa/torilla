@@ -62,6 +62,35 @@ async function uploadFileRequest(endpoint: string, file: File | Blob): Promise<a
   throw { message: body.message };
 };
 
+async function uploadFilesRequest(endpoint: string, files: FileList): Promise<string[]> {
+  const cookies = new Cookies(null, { path: '/' });
+  const token = cookies.get("X-Session-Token");
+  if (!token) throw { message: "Missing session token." };
+
+  const form = new FormData();
+  console.log(files);
+  const fileArray = Array.from(files);
+  if (fileArray.length === 0) throw { message: "No files provided." };
+
+  for (const file of fileArray) {
+    if (file.size > 5 * 1024 * 1024) throw { message: "One of the thumbnails is too large." };
+    if (!file.type.startsWith("image/")) throw { message: "Invalid file type provided." };
+    form.append("files", file, file.name);
+  }
+
+  const response = await fetch(config.backend.host + endpoint, {
+    method: "POST",
+    headers: {
+      "X-Session-Token": token
+    },
+    body: form
+  });
+
+  const body = await response.json();
+  if (response.ok) return body as string[];
+  throw { message: body?.message ?? "Failed to upload thumbnails." };
+};
+
 const getProfile = async (username: string): Promise<ProfileProps> => await request("GET", "/profiles/" + username);
 const getAccount = async (): Promise<SessionLoginProps> => await request("GET", "/accounts");
 const patchAccount = async () => await request("PATCH", "/accounts");
@@ -75,7 +104,9 @@ const listProducts = async (): Promise<MarketItemProps[]> => await request("GET"
 const listProductsFromUser = async (username: string): Promise<MarketItemProps[]> => await request("GET", "/products/list/" + username);
 const getProductById = async (id: string): Promise<MarketItemProps> => await request("GET", "/products/" + id);
 const getProductByUrl = async (vendor: string, shortUrl: string): Promise<MarketItemProps> => await request("GET", "/products/" + vendor + "/" + shortUrl);
-const updateProduct = async (id: string, data: MarketItemProps): Promise<MarketItemProps> => await request("PUT", "/products/" + id, JSON.stringify(data) ?? "{}");
+const updateProduct = async (id: string, data: MarketItemProps): Promise<MarketItemProps> => await request("PATCH", "/products/" + id, JSON.stringify(data) ?? "{}");
+const uploadThumbnail = async (id: string, files: FileList): Promise<string[]> => await uploadFilesRequest("/products/" + id + "/thumbnails", files);
+const updateThumbnails = async (id: string, thumbnails: string[]) => await request("PUT", "/products/" + id + "/thumbnails", JSON.stringify(thumbnails) ?? "[]");
 
 const api = {
   getProfile,
@@ -91,7 +122,9 @@ const api = {
   listProductsFromUser,
   getProductById,
   getProductByUrl,
-  updateProduct
+  updateProduct,
+  uploadThumbnail,
+  updateThumbnails
 };
 
 export default api;

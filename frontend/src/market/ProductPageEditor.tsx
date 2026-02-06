@@ -4,7 +4,6 @@ import Link from '@tiptap/extension-link';
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
-import Header from "../Header";
 import '../App.css';
 import './ProductPage.css';
 import MenuBar from "../components/RichTextEditorMenuBar";
@@ -92,7 +91,7 @@ function ProductPageEditor() {
   const [icon, setIcon] = useState<string | undefined>(undefined);
 
   const thumbnailUploadInput = useRef<HTMLInputElement | null>(null);
-  const [thumbnails, setThumbnails] = useState<{ url: string, video: boolean }[]>([]);
+  const [thumbnails, setThumbnails] = useState<{ url: string, video: boolean, uploading: boolean }[]>([]);
 
   const { vendorName, urlId } = useParams<{ vendorName?: string, urlId?: string }>();
   const [fetching, setFetching] = useState<boolean>(true);
@@ -111,7 +110,7 @@ function ProductPageEditor() {
     api.getProductByUrl(vendorName ?? "", urlId ?? "").then((fetchedProduct) => {
       setProduct(fetchedProduct);
       setIcon(fetchedProduct.iconUrl);
-      setThumbnails(fetchedProduct.thumbnails.map(t => ({ url: t, video: (/^(data:video)|\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i).test(t) })));
+      setThumbnails(fetchedProduct.thumbnails.map(t => ({ url: t, video: (/^(data:video)|\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i).test(t), uploading: false })));
       setFetching(false);
     }).catch(() => {
       setFetching(false);
@@ -158,19 +157,12 @@ function ProductPageEditor() {
     editor.commands.setContent(content);
   }, [editor, product]);
 
-  if (fetching) return (
-    <>
-      <Header />
-    </>);
+  if (fetching) return (<></>);
   if (!product) return (
     <>
-      <Header />
       <NotFound />
     </>);
-  if (loadingAuth) return (
-    <>
-      <Header />
-    </>);
+  if (loadingAuth) return (<></>);
 
   const handleSave = async () => {
     try {
@@ -208,7 +200,7 @@ function ProductPageEditor() {
     if (!files || files.length === 0) {
       return;
     }
-    const newThumbnails: { url: string, video: boolean }[] = [];
+    /*const newThumbnails: { url: string, video: boolean }[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const newFile: { url: string, video: boolean } = {
@@ -216,23 +208,42 @@ function ProductPageEditor() {
         video: (/^(video)|\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i).test(file.type),
       };
       newThumbnails.push(newFile);
-    }
-    setThumbnails([...thumbnails, ...newThumbnails]);
+    }*/
+    //setThumbnails([...thumbnails, ...newThumbnails]);
+    console.log(files, files.length);
     uploadThumbnails(files);
   }
-  function deleteThumbnail(index: number) {
-    setThumbnails(thumbnails.filter((_, i) => i !== index));
+  async function deleteThumbnail(index: number) {
+    if (!product) {
+      toast.error("Product not loaded.", { className: "toast-error" });
+      return;
+    }
+
+    const newThumbnails = thumbnails.filter((_, i) => i !== index);
+    await api.updateThumbnails(product.$id, newThumbnails.map(t => t.url));
+    setThumbnails(newThumbnails);
+    toast.success("Thumbnails saved successfully.", { className: "toast-success" });
   }
   async function uploadThumbnails(thumbnailFiles: FileList) {
     try {
-      if (thumbnailFiles.length === 0) {
+      if (!product) {
+        toast.error("Product not loaded.", { className: "toast-error" });
+        return;
+      }
+
+      if (!thumbnailFiles || thumbnailFiles.length === 0) {
         toast.error("No files provided.", { className: "toast-error" });
         return;
       }
 
-      toast.error("Not implemented yet.", { className: "toast-error" });
-      //await api.uploadProductThumbnails(thumbnailFiles);
-      //await handleSave();
+      // add placeholders for uploading thumbnails
+      const placeholderThumbnails = Array.from(thumbnailFiles).map(file => ({ url: URL.createObjectURL(file), video: (/^(data:video)|\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i).test(file.type), uploading: true }));
+      setThumbnails(prev => [...prev, ...placeholderThumbnails]);
+
+      const newThumbnails = await api.uploadThumbnail(product.$id, thumbnailFiles);
+      await api.updateThumbnails(product.$id, newThumbnails);
+      setThumbnails(newThumbnails.map(t => ({ url: t, video: (/^(data:video)|\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i).test(t), uploading: false })));
+      toast.success("Thumbnails saved successfully.", { className: "toast-success" });
     } catch (ex) {
       console.error(ex);
       toast.error("Failed to upload thumbnails.", { className: "toast-error" });
@@ -316,7 +327,7 @@ function ProductPageEditor() {
     function onMouseMove(ev: MouseEvent): void {
       clone.style.left = `${ev.clientX - offsetX}px`;
       clone.style.top = `${ev.clientY - offsetY}px`;
-      
+
       // Display vertical line indicating drop position
       let dropIndex = findDropIndex(ev.clientX, ev.clientY);
       if (dropIndex >= startIndex) {
@@ -357,7 +368,7 @@ function ProductPageEditor() {
       return kids.length - 1;
     }
 
-    function onMouseUp(ev: MouseEvent): void {
+    async function onMouseUp(ev: MouseEvent): Promise<void> {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
 
@@ -373,14 +384,17 @@ function ProductPageEditor() {
 
       // reorder state if changed
       if (dropIndex !== startIndex) {
-        setThumbnails(prev => {
-          const arr = [...prev];
-          const [item] = arr.splice(startIndex, 1);
-          // clamp dropIndex to valid range after removal
-          const insertAt = Math.max(0, Math.min(dropIndex, arr.length));
-          arr.splice(insertAt, 0, item);
-          return arr;
-        });
+        const newThumbnails = [...thumbnails];
+        const [moved] = newThumbnails.splice(startIndex, 1);
+        newThumbnails.splice(dropIndex, 0, moved);
+        setThumbnails(newThumbnails);
+
+        if (!product) {
+          toast.error("Product not loaded.", { className: "toast-error" });
+          return;
+        }
+        await api.updateThumbnails(product.$id, newThumbnails.map(t => t.url));
+        toast.success("Thumbnails saved successfully.", { className: "toast-success" });
       }
     }
 
@@ -390,8 +404,6 @@ function ProductPageEditor() {
 
   return (
     <>
-      <Header />
-
       <Toaster />
 
       <div className="content editor-content" id="page-editor-root">
@@ -442,9 +454,13 @@ function ProductPageEditor() {
                       <>
                         <video src={thumbnail.url} height={92} muted playsInline loop preload="metadata"></video>
                         <span className="play-button"><FaPlay /></span>
+                        {thumbnail.uploading && <span className="uploading-icon"></span>}
                       </>
                     ) : (
-                      <img src={thumbnail.url} height={92} />
+                      <>
+                        <img src={thumbnail.url} height={92} />
+                        {thumbnail.uploading && <span className="uploading-icon"></span>}
+                      </>
                     )}
                     <button className="editor-thumbnail-delete" onClick={() => deleteThumbnail(index)}><FaTrash /></button>
                   </div>
@@ -464,7 +480,14 @@ function ProductPageEditor() {
                 onClick={() => {
                   const url = prompt("Enter media URL:");
                   if (url) {
-                    setThumbnails([...thumbnails, url]);
+                    setThumbnails([...thumbnails, { url, video: (/^(data:video)|\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i).test(url), uploading: true }]);
+                    api.updateThumbnails(product.$id, [...thumbnails.map(t => t.url), url]).then(() => {
+                      toast.success("Thumbnails saved successfully.", { className: "toast-success" });
+                      setThumbnails(prev => prev.map(t => t.url === url ? { ...t, uploading: false } : t));
+                    }).catch(() => {
+                      toast.error("Failed to save thumbnail.", { className: "toast-error" });
+                      setThumbnails(prev => prev.filter(t => t.url !== url));
+                    });
                   }
                 }}
               >

@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const sdk = require('node-appwrite');
-const { databases } = require('../../lib/appwrite');
+const { InputFile } = require('node-appwrite/file');
+const { databases, storage } = require('../../lib/appwrite');
+const fs = require('fs');
 const { validateSession } = require('../../utils/sessionValidator');
 
 async function getAccountByProfile(profileId) {
@@ -257,7 +259,7 @@ router.get('/:vendorName/:shortUrl', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.patch('/:id', async (req, res) => {
   try {
     const body = req.body;
 
@@ -351,6 +353,146 @@ router.put('/:id', async (req, res) => {
     return res.status(500).json({
       error: true,
       message: "Failed to update the description of the product."
+    });
+  }
+});
+
+router.post('/:id/thumbnails', async (req, res) => {
+  try {
+    const product = await databases.getDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_PRODUCTS_TABLE_ID,
+      req.params.id
+    );
+
+    const vendorResult = await databases.listDocuments(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_ACCOUNTS_TABLE_ID,
+      [
+        sdk.Query.equal("profile", product.vendor.$id),
+        sdk.Query.limit(1)
+      ],
+    );
+
+    if (vendorResult.total === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Account not found."
+      });
+    }
+
+    const vendor = vendorResult.documents[0];
+
+    if (!(await validateSession(req.header("X-Session-Token"), vendor.$id))) {
+      return res.status(401).json({ error: true });
+    }
+
+    if (!req.files || !req.files.files) {
+      return res.status(400).json({ error: true, message: "No thumbnails provided." });
+    }
+
+    // Normalize to array (express-fileupload gives array when multiple files)
+    const files = Array.isArray(req.files.files) ? req.files.files : [req.files.files];
+
+    const bucketId = process.env.APPWRITE_PRODUCT_MEDIA_BUCKET_ID;
+    const uploadedUrls = [];
+
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        return res.status(400).json({ error: true, message: "One of the thumbnails is too large." });
+      }
+      if (!file.mimetype.startsWith("image/")) {
+        return res.status(400).json({ error: true, message: "Invalid file type provided." });
+      }
+
+      const tempFile = InputFile.fromPath(file.tempFilePath, file.name);
+
+      // Upload file
+      const resultFile = await storage.createFile(bucketId, sdk.ID.unique(), tempFile);
+
+      // cleanup temp file
+      try { fs.unlinkSync(file.tempFilePath); } catch (e) { }
+
+      // Construct public view URL for the uploaded file
+      const mediaUrl =
+        `${process.env.APPWRITE_PUBLIC_ENDPOINT}/storage/buckets/${bucketId}` +
+        `/files/${resultFile.$id}/preview?quality=80&project=${process.env.APPWRITE_PROJECT_ID}`;
+
+      uploadedUrls.push(mediaUrl);
+    }
+
+    // Update product document with new thumbnails appended
+    const updatedDocument = await databases.updateDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_PRODUCTS_TABLE_ID,
+      req.params.id,
+      {
+        thumbnails: [...(product.thumbnails ?? []), ...uploadedUrls],
+      }
+    );
+
+    return res.json(updatedDocument.thumbnails);
+  } catch (ex) {
+    console.error(ex);
+    return res.status(500).json({ error: true, message: "Failed to upload thumbnails." });
+  }
+});
+
+router.put('/:id/thumbnails', async (req, res) => {
+  try {
+    const body = req.body;
+
+    const product = await databases.getDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_PRODUCTS_TABLE_ID,
+      req.params.id
+    );
+
+    const accountResult = await databases.listDocuments(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_ACCOUNTS_TABLE_ID,
+      [
+        sdk.Query.equal("profile", product.vendor.$id),
+        sdk.Query.limit(1)
+      ],
+    );
+
+    if (accountResult.total === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Account not found."
+      });
+    }
+
+    const account = accountResult.documents[0];
+
+    if (!(await validateSession(req.header("X-Session-Token"), account.$id))) {
+      return res.status(401).json({ error: true });
+    }
+
+    if (!body) {
+      return res.status(400).json({ error: true, message: "No thumbnail array provided." });
+    }
+
+    const updatedDocument = await databases.updateDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_PRODUCTS_TABLE_ID,
+      req.params.id,
+      {
+        thumbnails: body,
+      },
+    );
+
+    const mapped = await mapProduct(updatedDocument);
+    res.json(mapped);
+  } catch (ex) {
+    console.error(ex);
+    if (ex.code === 404) {
+      return res.status(404).json({ error: true, message: "Product not found." });
+    }
+    return res.status(500).json({
+      error: true,
+      message: "Failed to update the thumbnails of the product."
     });
   }
 });

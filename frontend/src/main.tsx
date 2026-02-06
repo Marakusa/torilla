@@ -34,7 +34,9 @@ createRoot(document.getElementById('root')!).render(
             <Route path="settings" element={<SettingsPage />} />
 
             <Route path=":vendorName/:urlId" element={<ProductPage />} />
-            <Route path=":vendorName/:urlId/edit" element={<ProductPageEditor />} />
+            <Route path="*" element={<Dashboard />}>
+              <Route path=":vendorName/:urlId/edit" element={<ProductPageEditor />} />
+            </Route>
 
             <Route path="dashboard" element={<Dashboard />}>
               <Route index element={<DashboardMain />} />
