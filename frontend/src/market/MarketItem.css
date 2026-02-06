@@ -4,6 +4,7 @@
   border-radius: 8px;
   padding: 0;
   width: calc(33% - 1rem);
+  min-width: 260px;
   box-sizing: border-box;
   flex-direction: column;
   user-select: none;

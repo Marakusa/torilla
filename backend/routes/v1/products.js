@@ -497,4 +497,85 @@ router.put('/:id/thumbnails', async (req, res) => {
   }
 });
 
+router.post('/:id/icon', async (req, res) => {
+  try {
+    const product = await databases.getDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_PRODUCTS_TABLE_ID,
+      req.params.id
+    );
+
+    const vendorResult = await databases.listDocuments(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_ACCOUNTS_TABLE_ID,
+      [
+        sdk.Query.equal("profile", product.vendor.$id),
+        sdk.Query.limit(1)
+      ],
+    );
+
+    if (vendorResult.total === 0) {
+      return res.status(404).json({
+        error: true,
+        message: "Account not found."
+      });
+    }
+
+    const vendor = vendorResult.documents[0];
+
+    if (!(await validateSession(req.header("X-Session-Token"), vendor.$id))) {
+      return res.status(401).json({ error: true });
+    }
+
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({ error: true, message: "No icon provided." });
+    }
+
+    if (req.files.file.size > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: true, message: "Icon too large." });
+    }
+    if (!req.files.file.mimetype.startsWith("image/")) {
+      return res.status(400).json({ error: true, message: "Invalid file type." });
+    }
+
+    const tempFile = InputFile.fromPath(req.files.file.tempFilePath, req.files.file.name);
+
+    // Upload file
+    const bucketId = process.env.APPWRITE_PRODUCT_MEDIA_BUCKET_ID;
+    const resultFile = await storage.createFile(bucketId, sdk.ID.unique(), tempFile);
+
+    // cleanup temp file
+    try { fs.unlinkSync(req.files.file.tempFilePath); } catch (e) { }
+
+    // Delete old file if found (ignore errors)
+    const match = product.iconUrl ? product.iconUrl.match(/\/files\/([^/]+)\//) : null;
+    const oldFileId = match ? match[1] : null;
+    if (oldFileId) {
+      try {
+        await storage.deleteFile(bucketId, oldFileId);
+      } catch (e) { /* ignore deletion errors */ }
+    }
+
+    // Construct public view URL for the uploaded file
+    const iconUrl =
+      `${process.env.APPWRITE_PUBLIC_ENDPOINT}/storage/buckets/${bucketId}` +
+      `/files/${resultFile.$id}/view?width=600&height=600&quality=80&project=${process.env.APPWRITE_PROJECT_ID}`;
+
+    // Update product document with new icon info
+    await databases.updateDocument(
+      process.env.APPWRITE_MAIN_DATABASE_ID,
+      process.env.APPWRITE_PRODUCTS_TABLE_ID,
+      product.$id,
+      {
+        iconUrl
+      }
+    );
+
+    return res.json({ success: true, iconUrl });
+  } catch (ex) {
+    console.error(ex);
+    return res.status(500).json({ error: true, message: "Failed to upload icon." });
+  }
+});
+
 module.exports = router;

@@ -107,6 +107,7 @@ const getProductByUrl = async (vendor: string, shortUrl: string): Promise<Market
 const updateProduct = async (id: string, data: MarketItemProps): Promise<MarketItemProps> => await request("PATCH", "/products/" + id, JSON.stringify(data) ?? "{}");
 const uploadThumbnail = async (id: string, files: FileList): Promise<string[]> => await uploadFilesRequest("/products/" + id + "/thumbnails", files);
 const updateThumbnails = async (id: string, thumbnails: string[]) => await request("PUT", "/products/" + id + "/thumbnails", JSON.stringify(thumbnails) ?? "[]");
+const uploadProductIcon = async (id: string, file: File | Blob): Promise<{ success: boolean, iconUrl: string }> => await uploadFileRequest("/products/" + id + "/icon", file);
 
 const api = {
   getProfile,
@@ -124,7 +125,8 @@ const api = {
   getProductByUrl,
   updateProduct,
   uploadThumbnail,
-  updateThumbnails
+  updateThumbnails,
+  uploadProductIcon
 };
 
 export default api;

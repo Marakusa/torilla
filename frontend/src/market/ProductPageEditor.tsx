@@ -264,13 +264,18 @@ function ProductPageEditor() {
   }
   async function uploadIcon(iconFile: File) {
     try {
+      if (!product) {
+        toast.error("Product not loaded.", { className: "toast-error" });
+        return;
+      }
       if (!iconFile) {
         toast.error("No file provided.", { className: "toast-error" });
         return;
       }
-      toast.error("Not implemented yet.", { className: "toast-error" });
-      //await api.uploadProductIcon(iconFile);
-      //await handleSave();
+      const iconData = await api.uploadProductIcon(product?.$id, iconFile);
+      console.log(iconData);
+      setIcon(iconData.iconUrl);
+      toast.success("Icon uploaded successfully.", { className: "toast-success" });
     } catch (ex) {
       console.error(ex);
       toast.error("Failed to upload icon.", { className: "toast-error" });
