@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { NavLink } from "react-router";
 import "./DashboardNav.css";
 import { useAuth } from "../context/AuthContext";
